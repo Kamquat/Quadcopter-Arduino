@@ -10,14 +10,15 @@
 
 //define Accelerometer addresses
 
-#define ADXL345_ADDRESS  0x53     //device address
-#define ADXL345_MODE     0x00      //need to add
-#define ADXL345_DATA_X0  0x32
-#define ADXL345_DATA_X1  0x33
-#define ADXL345_DATA_Y0  0x34
-#define ADXL345_DATA_Y1  0x35
-#define ADXL345_DATA_Z0  0x36
-#define ADXL345_DATA_Z1  0x37
+#define ADXL345_ADDRESS		 0x53     //device address
+#define ADXL345_INACT		 0x27
+#define ADXL345_POWER_CTL	 0x2D
+#define ADXL345_DATA_X0		 0x32
+#define ADXL345_DATA_X1		 0x33
+#define ADXL345_DATA_Y0		 0x34
+#define ADXL345_DATA_Y1		 0x35
+#define ADXL345_DATA_Z0		 0x36
+#define ADXL345_DATA_Z1		 0x37
 
 //define Gyroscopes addresses
                               
@@ -53,9 +54,9 @@ public:
 	int getGyroData();
 	int getCompassData();
 	int getBarometerData();
+	int retrieveValue(int address, int registerAddress);
 	
 private:
-	int retrieveValue(int address, int registerAddress);
 	
 };
 extern IMUAccessTwo IMUAccess;

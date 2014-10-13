@@ -5,7 +5,9 @@
 void setup() 
 {
   Wire.begin();
+  delay(15);
   Serial.begin(9600);
+  IMUAccess.setupADXL345();
   IMUAccess.setupHMC5883L();
   //setupHMC5883L();
 
@@ -13,14 +15,9 @@ void setup()
 
 void loop() 
 {
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_X0);
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_X1);
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_Y0);
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_Y1);
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_Z0);
-  retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_Z1);
-  //retrieveValue(HMC5883L_ADDRESS, HMC5883L_DATA_Z1);
-  delay(1000);  
+  IMUAccess.getAccelData();
+  IMUAccess.getCompassData();
+  delay(2000);  
   Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 int retrieveValue(int address, int secondAddress)
