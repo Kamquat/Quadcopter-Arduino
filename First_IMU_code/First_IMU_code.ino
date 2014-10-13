@@ -6,7 +6,8 @@ void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-  setupHMC();
+  IMUAccess.setupHMC5883L();
+  //setupHMC5883L();
 
 }
 
@@ -24,6 +25,7 @@ void loop()
 }
 int retrieveValue(int address, int secondAddress)
 {
+  /*
   Wire.beginTransmission(address);
     Wire.write(secondAddress); // register to read
     int value = Wire.endTransmission();
@@ -46,4 +48,5 @@ int retrieveValue(int address, int secondAddress)
       //Serial.print(Wire.available());
     }
     Serial.print("\n");
+    */
 }
