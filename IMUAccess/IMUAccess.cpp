@@ -3,23 +3,21 @@
 #include "Wire.h"
 
 
-
-bool IMUAccessTwo::setupADXL345()
+IMUAccessTwo::IMUAccessTwo()
 {
 }
-bool IMUAccessTwo::setupL3G4200D()
+bool IMUAccessTwo::setupADXL345(void)
 {
 }
-bool IMUAccessTwo::setupHMC5883L()
+bool IMUAccessTwo::setupL3G4200D(void)
 {
-  Wire.beginTransmission(HMC5883L_ADDRESS);
-  Wire.write(HMC5883L_MODE);
-  Wire.write(0);
-  int value = Wire.endTransmission();
-  Serial.print(value);
-  //delay(100);
+}
+bool IMUAccessTwo::setupHMC5883L(void)
+{
+	Serial.print("HAPPY");
 }
 
-bool setupHMC5883L()
+extern bool setupHMC5883L()
 {
 }
+extern IMUAccessTwo IMUAccess = new IMUAccessTwo();

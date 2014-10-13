@@ -46,11 +46,14 @@
 class IMUAccessTwo
 {
 public:
+	IMUAccessTwo();
 	bool setupADXL345();
 	bool setupL3G4200D();
 	bool setupHMC5883L();
 };
 extern IMUAccessTwo IMUAccess;
+
+//extern bool setupHMC5883L();
 
 #endif
 
