@@ -49,10 +49,10 @@ public:
 	bool setupADXL345();
 	bool setupL3G4200D();
 	bool setupHMC5883L();
-	int[] getAccelData();
-	int[] getGyroData();
-	int[] getCompassData();
-	int[] getBarometerData();
+	int getAccelData();
+	int getGyroData();
+	int getCompassData();
+	int getBarometerData();
 	
 private:
 	int retrieveValue(int address, int registerAddress);
