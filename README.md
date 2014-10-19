@@ -1,10 +1,9 @@
 Quadcopter-Arduino
 ===================
 To properly use these files using the arduino IDE:
-Place these folders in Documents>Arduino
-	First_IMU_code
-Place these in Documents>Arduino>libraries
-	IMUAccess
+
+NOTE: Changed Project folder structure. To get running in the Arduino IDE, copy files from Github
+repository to Documents -> Arduino. Replace all files after doing this.
 
 
-Comments incoming next week
+Comments incoming next week... hopefully
