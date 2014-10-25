@@ -6,6 +6,7 @@
 
 #ifndef IMUAccess_h
 #define IMUAccess_h
+#include "Arduino.h"
 
 
 //define Accelerometer addresses
@@ -15,12 +16,16 @@
 #define ADXL345_POWER_CTL		0x2D
 #define ADXL345_DATA			0x32
 #define ADXL345_DATA_FORMAT		0x31
+#define ADXL345_LATENT			0x22
+#define ADXL345_INT_ENABLE		0x2E
 
 //define Gyroscopes addresses
                               
 #define L3G4200D_ADDRESS  		0x69    //device address
 #define L3G4200D_MODE     	 	0x00  //need to define
 #define L3G4200D_DATA	  		0x28
+#define L3G4200D_CTRL_REG1		0x20
+#define L3G4200D_CTRL_REG4		0x23
 
 
 //Define Compass addresses
@@ -34,13 +39,18 @@
 class IMUAccessTwo
 {
 public:
+	bool setupDevices();
+	void updateIMUValues();
+private:
 	bool setupADXL345();
 	bool setupL3G4200D();
 	bool setupHMC5883L();
-	int getAccelData();
-	int getGyroData();
-	int getCompassData();
-	int getBarometerData();
+	bool setupBMP085();
+	void getAccelData(int[]);
+	void getGyroData(int[]);
+	void getCompassData(int[]);
+	void getBarometerData();
+	void readIMU(int,int,int[]);
 	int retrieveValue(int address, int registerAddress);
 	
 private:
