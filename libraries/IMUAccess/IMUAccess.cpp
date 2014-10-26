@@ -3,45 +3,95 @@
 #include "Wire.h"
 #include "Config.h"
 
-IMUAccessTwo IMUAccess;
+//IMUAccessTwo IMUAccess;
+	int accelMicros = 0, gyroMicros = 0, compassMicros = 0;
+	int accelInterval = 0, gyroInterval = 0, compassInterval = 0;
 	int currentAccelValues[3] = {0};
-	int currentCompassValues[3] = {0};
 	int currentGyroValues[3] = {0};
+	int currentCompassValues[3] = {0};
+	int gyroOffsets[3] = {0};
+	
 bool IMUAccessTwo::setupDevices(void)
 {
+	switch(ACCEL_FREQUENCY)
+	{
+		case 13: 	accelInterval = 1000000/800;
+					break;
+		case 12:	accelInterval = 1000000/400;
+					break;
+		case 11:	accelInterval = 1000000/200;
+					break;
+		case 10:	accelInterval = 1000000/100;
+	}
+	switch(ACCEL_FREQUENCY)
+	{
+		case 0: 	gyroInterval = 1000000/100;
+					break;
+		case 1:		gyroInterval = 1000000/200;
+					break;
+		case 2:		gyroInterval = 1000000/400;
+					break;
+		case 3:		gyroInterval = 1000000/800;
+	}
+	switch(ACCEL_FREQUENCY)
+	{
+		case 13: 	compassInterval = 1000000/800;
+					break;
+		case 12:	compassInterval = 1000000/400;
+					break;
+		case 11:	compassInterval = 1000000/200;
+					break;
+		case 10:	compassInterval = 1000000/100;
+	}
+
 	setupADXL345();   	//Accelerometer
-	setupHMC5883L(); 	//Compass
-	setupL3G4200D(); 	//Gyroscopes	
+	setupL3G4200D(); 	//Gyroscopes
+	setupHMC5883L(); 	//Compass	
 	setupBMP085();		//Barometer
+
 
 }
 void IMUAccessTwo::updateIMUValues(void)
 {
-	getAccelData(currentAccelValues);
+	if(micros()-accelMicros > accelInterval)  //Accesses Accelerometer at frequency from Config
+	{
+		getAccelData(currentAccelValues);
+		accelMicros = micros();
+	}
+	if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
+	{
+		getGyroData(currentGyroValues);
+		gyroMicros = micros();
+	}
+	if(micros()-compassMicros > compassInterval)  //Accesses Compass at frequency from Config
+	{	
+		getCompassData(currentCompassValues);
+		compassMicros = micros();
+	}
 	getCompassData(currentCompassValues);
-	getGyroData(currentGyroValues);
-	
 	if(DEBUG == true)
 	{
-	Serial.print(Serial.print(currentAccelValues[1]));
-	Serial.print("\n\n\n");
-	/*
-		Serial.print("Accelerometer Values\n");
-    
-		Serial.print("("); Serial.print(currentAccelValues[1]); Serial.print(", "); Serial.print(currentAccelValues[0]); Serial.print(")\n");
-		Serial.print("("); Serial.print(currentAccelValues[3]); Serial.print(", "); Serial.print(currentAccelValues[2]); Serial.print(")\n");
-		Serial.print("("); Serial.print(currentAccelValues[5]); Serial.print(", "); Serial.print(currentAccelValues[4]); Serial.print(")\n");
-		Serial.print("\n");
-    
-		Serial.print("Compass Values\n");
-    
-		Serial.print("("); Serial.print(currentCompassValues[1]); Serial.print(", "); Serial.print(currentCompassValues[0]); Serial.print(")\n");
-		Serial.print("("); Serial.print(currentCompassValues[3]); Serial.print(", "); Serial.print(currentCompassValues[2]); Serial.print(")\n");
-		Serial.print("("); Serial.print(currentCompassValues[5]); Serial.print(", "); Serial.print(currentCompassValues[4]); Serial.print(")\n");
-		Serial.print("\n");
-		*/
-    
-	}
+		
+		Serial.print("\nAccelerometer Values:\n");
+		Serial.print("X = "); Serial.print(currentAccelValues[0]);
+		Serial.print("\nY = "); Serial.print(currentAccelValues[1]);
+		Serial.print("\nZ = "); Serial.print(currentAccelValues[2]);
+		
+		
+		Serial.print("\nGyro Values:\n");
+		Serial.print("X = "); Serial.print(currentGyroValues[0]);
+		Serial.print("\nY = "); Serial.print(currentGyroValues[1]);
+		Serial.print("\nZ = "); Serial.print(currentGyroValues[2]);
+		
+		
+		Serial.print("\nCompass Values:\n");
+		Serial.print("X = "); Serial.print(currentCompassValues[0]);
+		Serial.print("\nY = "); Serial.print(currentCompassValues[1]);
+		Serial.print("\nZ = "); Serial.print(currentCompassValues[2]);
+		
+		
+		delay(5000);
+	}   
 	if (DEBUG_TIMING == true)
 	{
 	static int maxCount = 100;
@@ -68,41 +118,33 @@ bool IMUAccessTwo::setupADXL345(void)
 {
 	int dataFormatValue = 32 + ACCEL_RESOLUTION; //allows g setting to be enabled in config
 
-	
-	while(Wire.available()); //This ensures the wire is clear before executing
-	
 	//Writes a a 00101000 to the Power control bit
 	//Turns accelerometer into Measurement mode and disables autosleep
-	Wire.beginTransmission(ADXL345_ADDRESS);
-	Wire.write(ADXL345_POWER_CTL);
-	Wire.write(40);
-	Wire.endTransmission(true);
 	
+	//the extra Whiles ensure the write is successful
 	while(Wire.available()); //This ensures the wire is clear before executing
+	while((writeIMU(ADXL345_ADDRESS,ADXL345_POWER_CTL,40)));
+	
+	
+	//sets accelerometer to value set in ACCEL_FREQUENCY, 800Hz-100Hz
+	while(Wire.available()); //This ensures the wire is clear before executing
+	while((writeIMU(ADXL345_ADDRESS,ADXL345_DATA_RATE,ACCEL_FREQUENCY)));
 	
 	
 	//writes a 32 + ACCEL_RESOLUTION
 	//sets g range, right justifies data and enables full resolution
-	Wire.beginTransmission(ADXL345_ADDRESS);
-	Wire.write(ADXL345_DATA_FORMAT);
-	
-	Wire.write(dataFormatValue);
-	Wire.endTransmission(true);
-	
 	while(Wire.available()); //This ensures the wire is clear before executing
+	while((writeIMU(ADXL345_ADDRESS,ADXL345_DATA_FORMAT,dataFormatValue)));
 	
 	
 	//Disables all extra settings on accelerometer
 	//will change as new options are added
-	Wire.beginTransmission(ADXL345_ADDRESS);
-	Wire.write(ADXL345_INT_ENABLE);
-	
-	Wire.write(0);
-	Wire.endTransmission(true);
+	while(Wire.available()); //This ensures the wire is clear before executing
+	while((writeIMU(ADXL345_ADDRESS,ADXL345_INT_ENABLE,0)));
 	
 	if(DEBUG == true)
 	{
-		Serial.print(" Accelerometer Ready");
+		Serial.print("Accelerometer Ready");
 		Serial.print("\n");
 	}
 	
@@ -110,39 +152,72 @@ bool IMUAccessTwo::setupADXL345(void)
 }
 bool IMUAccessTwo::setupL3G4200D(void)
 {
-	while(Wire.available()); //This ensures the wire is clear before executing
+	//All while(Wire.available()); ensure wire is clear before beginning request
+	int samples = 2000;
 	
-	//
-	//
-	Wire.beginTransmission(L3G4200D_ADDRESS);
-	Wire.write(L3G4200D_CTRL_REG1);
-	Wire.write(255);           //sets to fastes requency, highest cut-off and enables all axis
-	Wire.endTransmission(true);
+	//15 turns device on, others adjust rate and bandwidth
+	int ctrlReg1Value = 15 + GYRO_DATA_RATE * 64 + GYRO_DATA_BANDWIDTH * 16;
+	while(Wire.available());
+	while((writeIMU(L3G4200D_ADDRESS,L3G4200D_CTRL_REG1,ctrlReg1Value)));
+
 	
-	while(Wire.available()); //This ensures the wire is clear before executing
+	int ctrlReg2Value = L3G4200D_LOW_FILTER;
+	while(Wire.available());
+	while((writeIMU(L3G4200D_ADDRESS,L3G4200D_CTRL_REG2,ctrlReg2Value)));
+
 	
-	Wire.beginTransmission(L3G4200D_ADDRESS);
-	Wire.write(L3G4200D_CTRL_REG4);
+	//sets scale of data based on Config value
+	int ctrlReg4Value = GYRO_DATA_SCALE * 16;  //sets
+	while(Wire.available());
+	while((writeIMU(L3G4200D_ADDRESS,L3G4200D_CTRL_REG4,ctrlReg4Value)));
+
 	
-	int ctrlReg4Value = GYRO_DATA_RATE * 16;
+	//enables high filter and settings and stuff.
+	//NOT PROPERLY PREPARED
+	int ctrlReg5Value = L3G4200D_HIGH_FILTER;
+	while(Wire.available());
+	while((writeIMU(L3G4200D_ADDRESS,L3G4200D_CTRL_REG5,ctrlReg5Value)));
 	
-	Wire.write(ctrlReg4Value);           //sets to frequency in config, highest cut-off and enables all axis
-	Wire.endTransmission(true);
+	//prepares offset values, will hopefully make gyro more reliable
+	int xSum = 0, ySum = 0, zSum = 0;
+	gyroMicros = micros();
+	for(int i = 0; i < samples;)
+	{
+		if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
+		{
+			getGyroData(currentGyroValues);
+			xSum += currentGyroValues[0];
+			ySum += currentGyroValues[1];
+			zSum += currentGyroValues[2];
+			i++;
+		}
+	}
+	gyroOffsets[0] = xSum / samples;
+	gyroOffsets[1] = ySum / samples;
+	gyroOffsets[2] = zSum / samples;
 	
+	if(DEBUG == true)
+	{
+		Serial.print("Gyro Ready");
+		Serial.print("\n");
+		Serial.print("Gyro offsets:\nX= ");
+		Serial.print(gyroOffsets[0]); Serial.print("\nY= ");
+		Serial.print(gyroOffsets[1]); Serial.print("\nZ= ");
+		Serial.print(gyroOffsets[2]); Serial.print("\n");
+	}
 	return true;
 }
 bool IMUAccessTwo::setupHMC5883L(void)
 {
+	while(Wire.available()); //This ensures the wire is clear before executing
+	while((writeIMU(HMC5883L_ADDRESS,HMC5883L_MODE,0)));
+	
+	
 	if(DEBUG == true)
 	{
 		Serial.print("Compass Ready\n");
 	}
-	while(Wire.available()); //This ensures the wire is clear before executing
 	
-	Wire.beginTransmission(HMC5883L_ADDRESS);
-	Wire.write(HMC5883L_MODE);
-	Wire.write(0);
-	Wire.endTransmission(true);
 	return true;
 
 }
@@ -151,108 +226,104 @@ bool IMUAccessTwo::setupBMP085(void)
 }
 void IMUAccessTwo::getAccelData(int newAccelValues[])
 {
-	readIMU(ADXL345_ADDRESS,ADXL345_DATA, newAccelValues);
-	/*
-	byte incomingValues[6];
-
-	while(Wire.available()); //This ensures the wire is clear before executing
-
-	Wire.beginTransmission(ADXL345_ADDRESS);
-    Wire.write(ADXL345_DATA);              //Initial data position order is XZY, NOT XYZ
-    int successfulTransmission = Wire.endTransmission();
+	byte incomingValues[6] = {0};
+	readIMU(ADXL345_ADDRESS,ADXL345_DATA,6, incomingValues);
 	
-    if(successfulTransmission != 0)
-    {
-		if(DEBUG == true)
+	
+	newAccelValues[0] = incomingValues[1]<<8 | incomingValues[0];
+	newAccelValues[1] = incomingValues[3]<<8 | incomingValues[2];
+	newAccelValues[2] = incomingValues[5]<<8 | incomingValues[4];
+	
+	
+	int temp;
+	for(int i = 0; i < 3; i++)
+	{
+		temp = newAccelValues[i];
+		if(temp > 32767)   //this means the value is negative, must fix
 		{
-		Serial.print("read failure on: ");
-		Serial.print(ADXL345_ADDRESS);
-		Serial.print("due to endTransmission = ");
-		Serial.print(successfulTransmission);
+			int j = 31;
+			while(bitRead(temp,j)==0) //sign extends number
+			{
+				bitWrite(temp,j,1);
+				j--;
+			}
+			
+			for(j = 0; j < 32; j++)       //gives 2's complement of number
+			{	
+				if(bitRead(temp,j)==1)
+				{
+					bitWrite(temp,j,0);
+				}
+				else
+				{
+					bitWrite(temp,j,1);
+				}
+			}
+			temp += 1;
+			newAccelValues[i] = -temp;		
 		}
-      Wire.endTransmission(true);
-	 
-    }
-	else
-    {
-		Wire.requestFrom(ADXL345_ADDRESS, 6); // read 6 bytes
-		while(Wire.available() < 6);
-		for(byte i = 0; i <6; i++)
-		{
-			incomingValues[i] = Wire.read();
-		}
-		newAccelValues[0] = incomingValues[1]<<8 | incomingValues[0];
-		newAccelValues[1] = incomingValues[3]<<8 | incomingValues[2];
-		newAccelValues[2] = incomingValues[5]<<8 | incomingValues[4];
-		
-		
-	  Wire.endTransmission(true);
-    }*/
+	}
 }
 void IMUAccessTwo::getGyroData(int newGyroValues[])
 {
-	//readIMU(L3G4200D_ADDRESS,L3G4200D_DATA, newGyroValues);
-	/*
-	Wire.beginTransmission(L3G4200D_ADDRESS);
-	Wire.write(L3G4200D_DATA);
-	if(successfulTransmission != 0)
-    {
-		if(DEBUG == true)
+	byte incomingValues[6] = {0};
+	readIMU(L3G4200D_ADDRESS,L3G4200D_DATA,6, incomingValues);
+	
+	
+	newGyroValues[0] = incomingValues[1]<<8 | incomingValues[0];
+	newGyroValues[1] = incomingValues[3]<<8 | incomingValues[2];
+	newGyroValues[2] = incomingValues[5]<<8 | incomingValues[4];
+	
+	
+	int temp;
+	for(int i = 0; i < 3; i++)
+	{
+		temp = newGyroValues[i];
+		if(temp > 32767)   //this means the value is negative, must fix
 		{
-			Serial.print("read failure on: ");
-			Serial.print(HMC5883L_ADDRESS);
-			Serial.print("due to endTransmission = ");
-			Serial.print(successfulTransmission);
-			Serial.print("\n");
+			int j = 31;
+			while(bitRead(temp,j)==0) //sign extends number
+			{
+				bitWrite(temp,j,1);
+				j--;
+			}
+			
+			for(j = 0; j < 32; j++)       //gives 2's complement of number
+			{	
+				if(bitRead(temp,j)==1)
+				{
+					bitWrite(temp,j,0);
+				}
+				else
+				{
+					bitWrite(temp,j,1);
+				}
+			}
+			temp += 1;
+			newGyroValues[i] = -temp;		
 		}
-      Wire.endTransmission(true);
-    }*/
+	}
+	for(int i = 0; i < 3; i++)
+	{
+		newGyroValues[i] = newGyroValues[i] - gyroOffsets[i];
+	}
+	
+	
 }
 void IMUAccessTwo::getCompassData(int newCompassValues[])
 {
-	readIMU(HMC5883L_ADDRESS,HMC5883L_DATA, newCompassValues);
-/*
 	byte incomingValues[6] = {0};
-	//while(Wire.available()); //This ensures the wire is clear before executing
-
-	Wire.beginTransmission(HMC5883L_ADDRESS);
-    Wire.write(HMC5883L_DATA);              //Initial data position order is XZY, NOT XYZ
-    int successfulTransmission = Wire.endTransmission();
-    if(successfulTransmission != 0)
-    {
-		if(DEBUG == true)
-		{
-			Serial.print("read failure on: ");
-			Serial.print(HMC5883L_ADDRESS);
-			Serial.print("due to endTransmission = ");
-			Serial.print(successfulTransmission);
-			Serial.print("\n");
-		}
-      Wire.endTransmission(true);
-    }
-    else
-    {
-		Wire.requestFrom(HMC5883L_ADDRESS, 6); // read 6 bytes
-		
-		while(Wire.available() < 6);
-		
-		for(byte i = 0; i < 6; i++)
-		{
-			incomingValues[i] = Wire.read();
-		}
-				
-		newCompassValues[0] = incomingValues[1]<<8 | incomingValues[0];
-		newCompassValues[1] = incomingValues[3]<<8 | incomingValues[2];
-		newCompassValues[2] = incomingValues[5]<<8 | incomingValues[4];
-		
-		Wire.endTransmission(true);
-      //Serial.print(Wire.available());
-    }
-	*/
+	readIMU(HMC5883L_ADDRESS,HMC5883L_DATA,6, incomingValues);
+	
+	
+	//Not sure this block is appropriate for the compass
+	newCompassValues[0] = incomingValues[1]<<8 | incomingValues[0];
+	newCompassValues[1] = incomingValues[3]<<8 | incomingValues[2];
+	newCompassValues[2] = incomingValues[5]<<8 | incomingValues[4];
 }
-void IMUAccessTwo::readIMU(int deviceAddress, int dataAddress, int newValues[])
+bool IMUAccessTwo::readIMU(int deviceAddress, int dataAddress,int numBytes, byte incomingValues[])
 {
-	byte incomingValues[6] = {0};
+	bool returnValue = false;
 	while(Wire.available()); //This ensures the wire is clear before executing
 
 	Wire.beginTransmission(deviceAddress);
@@ -269,24 +340,27 @@ void IMUAccessTwo::readIMU(int deviceAddress, int dataAddress, int newValues[])
 			Serial.print(successfulTransmission);
 			Serial.print("\n");
 		}
-      Wire.endTransmission(true);
     }
     else
     {
-		Wire.requestFrom(deviceAddress, 6); // read 6 bytes
+		Wire.requestFrom(deviceAddress, numBytes); // read numBytes bytes
 		
-		while(Wire.available() < 6);
+		while(Wire.available() < numBytes);
 		
-		for(byte i = 0; i < 6; i++)
+		for(byte i = 0; i < numBytes; i++)
 		{
 			incomingValues[i] = Wire.read();
 		}
-				
-		newValues[0] = incomingValues[1]<<8 | incomingValues[0];
-		newValues[1] = incomingValues[3]<<8 | incomingValues[2];
-		newValues[2] = incomingValues[5]<<8 | incomingValues[4];
+		returnValue = true;
+	}
 		
-		Wire.endTransmission(true);
-      //Serial.print(Wire.available());
-    }
+	Wire.endTransmission(true);
+	return returnValue;
+}
+bool IMUAccessTwo::writeIMU(int deviceAddress, int dataAddress,int value)
+{
+	Wire.beginTransmission(deviceAddress);
+	Wire.write(dataAddress);
+	Wire.write(value);
+	return (Wire.endTransmission(true));
 }

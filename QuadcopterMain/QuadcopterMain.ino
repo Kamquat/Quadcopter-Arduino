@@ -2,6 +2,8 @@
 #include <Wire.h>
 #include <Config.h>
 
+IMUAccessTwo IMUAccess;
+
 int i = 0;
 int previousMicros = 0;
 double myTime = 0;
@@ -24,4 +26,5 @@ void setup()
 void loop()
 {
   IMUAccess.updateIMUValues();
+
 }

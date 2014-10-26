@@ -13,6 +13,7 @@
 
 #define ADXL345_ADDRESS			0x53     //device address
 #define ADXL345_INACT			0x27
+#define ADXL345_DATA_RATE       0x2C
 #define ADXL345_POWER_CTL		0x2D
 #define ADXL345_DATA			0x32
 #define ADXL345_DATA_FORMAT		0x31
@@ -22,10 +23,16 @@
 //define Gyroscopes addresses
                               
 #define L3G4200D_ADDRESS  		0x69    //device address
-#define L3G4200D_MODE     	 	0x00  //need to define
-#define L3G4200D_DATA	  		0x28
+#define L3G4200D_DATA	  		0x28 | (1 << 7)
 #define L3G4200D_CTRL_REG1		0x20
+#define L3G4200D_CTRL_REG2		0x21
+#define L3G4200D_CTRL_REG3		0x22
 #define L3G4200D_CTRL_REG4		0x23
+#define L3G4200D_CTRL_REG5		0x24
+
+#define L3G4200D_LOW_FILTER     0x34
+#define L3G4200D_HIGH_FILTER    0x13
+
 
 
 //Define Compass addresses
@@ -50,8 +57,9 @@ private:
 	void getGyroData(int[]);
 	void getCompassData(int[]);
 	void getBarometerData();
-	void readIMU(int,int,int[]);
-	int retrieveValue(int address, int registerAddress);
+	bool readIMU(int,int,int,byte[]);
+	bool writeIMU(int,int, int);
+	//int retrieveValue(int address, int registerAddress);
 	
 private:
 	
