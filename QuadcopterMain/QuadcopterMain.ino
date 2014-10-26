@@ -4,9 +4,7 @@
 
 IMUAccessTwo IMUAccess;
 
-int i = 0;
-int previousMicros = 0;
-double myTime = 0;
+
 void setup()
 {
   Serial.begin(9600);
@@ -18,8 +16,7 @@ void setup()
   
   if (DEBUG == true) 
   {
-    Serial.print("setup Complete");
-    previousMicros = micros();
+    Serial.print("setup Complete\n");
   }
 
 }

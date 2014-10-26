@@ -38,7 +38,9 @@
 //Define Compass addresses
 
 #define HMC5883L_ADDRESS        0x1E    //device address
-#define HMC5883L_MODE           0x02
+#define HMC5883L_CONFIG_A       0x00
+#define HMC5883L_CONFIG_B       0x01
+#define HMC5883L_MODE			0x02 //this sets the compass to continuous measurement mode
 #define HMC5883L_DATA	        0x03
 
 //bool public setupHMC5883L();
@@ -53,9 +55,9 @@ private:
 	bool setupL3G4200D();
 	bool setupHMC5883L();
 	bool setupBMP085();
-	void getAccelData(int[]);
-	void getGyroData(int[]);
-	void getCompassData(int[]);
+	bool getAccelData(int[]);
+	bool getGyroData(int[]);
+	bool getCompassData(int[]);
 	void getBarometerData();
 	bool readIMU(int,int,int,byte[]);
 	bool writeIMU(int,int, int);

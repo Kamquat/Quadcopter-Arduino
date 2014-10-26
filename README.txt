@@ -30,7 +30,13 @@ Stretch goals:
 	[]Add sonar sensor to add height reading
 
 
--------[]Add auto-land feature
+--------[]Add auto-land feature
+
+	[]Add video transmitter / camera
+
+	[]Add data transceiver
+
+--------[]Add GPS
 
 	
 	
