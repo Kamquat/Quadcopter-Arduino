@@ -50,6 +50,9 @@ class IMUAccessTwo
 public:
 	bool setupDevices();
 	void updateIMUValues();
+	int currentAccelValues[];
+	int currentGyroValues[];
+	int currentCompassValues[];
 private:
 	bool setupADXL345();
 	bool setupL3G4200D();

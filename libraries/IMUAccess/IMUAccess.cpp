@@ -1,9 +1,13 @@
+/*
+Compass and Barometer no yet ready
+*/
+
+
 #include "IMUAccess.h"
 #include "Arduino.h"
 #include "Wire.h"
 #include "Config.h"
 
-//IMUAccessTwo IMUAccess;
 	int accelMicros = 0, gyroMicros = 0, compassMicros = 0;
 	int accelInterval = 0, gyroInterval = 0, compassInterval = 0;
 	int currentAccelValues[3] = {0};
