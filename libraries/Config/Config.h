@@ -3,9 +3,20 @@
 
 
 
-#define DEBUG true          //If set to true, will do debug work like Serial.print
-#define DEBUG_TIMING false  //If set to true, include timing code
+#define DEBUG false          //If set to true, will do debug work like Serial.print
+#define DEBUG_TIMING true  //If set to true, include timing code
 
+//PIN VALUES===========================================================
+#define RECEIVER_PIN_1 	2
+#define RECEIVER_PIN_2	3
+#define RECEIVER_PIN_3	4
+#define RECEIVER_PIN_4	5
+#define RECEIVER_PIN_5	6
+#define RECEIVER_PIN_6	7
+#define RECEIVER_PIN_7	8
+#define RECEIVER_PIN_8	9
+
+//RECEIVER VALUES==============================================================
 
 
 //IMU VALUES================================================================

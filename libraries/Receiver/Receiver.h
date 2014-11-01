@@ -10,9 +10,25 @@
 
 
 #ifndef Receiver_h
-
 #define Receiver_h
+
+//void setupReceiverPins();
+
+
+
 #include "Arduino.h"
+
+
+class ReceiverTwo
+{
+	public:
+		void setupReceiverPins();
+		volatile int pulseLength[8];
+		volatile int highTime[8];
+
+};
+extern ReceiverTwo Receiver;
+
 
 
 

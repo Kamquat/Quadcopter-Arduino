@@ -81,50 +81,6 @@ void IMUAccessTwo::updateIMUValues(void)
 		bool goodCompassRead = getCompassData(currentCompassValues);
 		if(goodCompassRead == true) {compassMicros = micros();}
 	}
-	if(DEBUG == true)
-	{
-		
-		Serial.print("\nAccelerometer Values:\n");
-		Serial.print("X = "); Serial.print(currentAccelValues[0]);
-		Serial.print("\nY = "); Serial.print(currentAccelValues[1]);
-		Serial.print("\nZ = "); Serial.print(currentAccelValues[2]);
-		
-		
-		Serial.print("\nGyro Values:\n");
-		Serial.print("X = "); Serial.print(currentGyroValues[0]);
-		Serial.print("\nY = "); Serial.print(currentGyroValues[1]);
-		Serial.print("\nZ = "); Serial.print(currentGyroValues[2]);
-		
-		
-		Serial.print("\nCompass Values:\n");
-		Serial.print("X = "); Serial.print(currentCompassValues[0]);
-		Serial.print("\nY = "); Serial.print(currentCompassValues[1]);
-		Serial.print("\nZ = "); Serial.print(currentCompassValues[2]);
-		
-		
-		delay(5000);
-	}   
-	if (DEBUG_TIMING == true)
-	{
-	static int maxCount = 100;
-	static int iterationCount = 0;
-	static int myTime = 0;
-	static int previousMicros = 0;
-		iterationCount++;
-		if (iterationCount == maxCount)
-		{
-			myTime = micros() - previousMicros;
-			//myTime /= 1000000;
-			Serial.print(maxCount);
-			Serial.print(" rounds took: ");
-			Serial.print(myTime);
-			Serial.print(" micro-seconds \n");
-
-			iterationCount = 0;
-			delay(5000);
-			previousMicros = micros();
-		}
-	}
 }
 bool IMUAccessTwo::setupADXL345(void)
 {
