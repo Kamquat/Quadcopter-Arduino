@@ -31,7 +31,7 @@
 
 //CTRL_REG 4----------------------
 #define GYRO_DATA_SCALE  0        //0 = 250dps, 01 = 500dps, 2 = 2000 dps
-//NOTE MDPS based on GYRO_DATA_SCALE 0 = 8.75, 1 = 17.5, 2 = 70
+//NOTE mDPS based on GYRO_DATA_SCALE 0 = 8.75, 1 = 17.5, 2 = 70
 
 //#define GYRO_RANGE     0         //
 

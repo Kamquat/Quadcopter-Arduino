@@ -2,7 +2,9 @@
 #include <Wire.h>
 #include <Config.h>
 #include <Receiver.h>
+#include <Orientation.h>
 
+OrientationTwo Orientation;
 IMUAccessTwo IMUAccess;
 ReceiverTwo Receiver;
 

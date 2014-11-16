@@ -3,7 +3,14 @@
 #define Orientation_h
 #include "Arduino.h"
 
+class OrientationTwo
+{
+	public:
+	
+		double xyzDegree[3];
 
+};
+extern OrientationTwo Orientation;
 
 
 
