@@ -5,9 +5,13 @@
 #include "math.h"
 
 double Accel_to_G(double);
+void OrientationTwo::setupOrientation()
+{
+	previousTime = 0;
+}
 void OrientationTwo::updateOrientation()
 {
-	currentTime = micros();
+	int currentTime = micros();
 	if(currentTime - previousTime > ORIENT_PERIOD)
 	{
 		previousTime = currentTime;

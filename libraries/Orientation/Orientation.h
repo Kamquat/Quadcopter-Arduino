@@ -8,8 +8,12 @@ class OrientationTwo
 {
 	public:
 		void updateOrientation();
+		void setupOrientation();
 		
 		double xyzDegree[3];
+		
+		private:
+		int previousTime;
 
 };
 extern OrientationTwo Orientation;

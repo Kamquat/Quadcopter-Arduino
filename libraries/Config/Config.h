@@ -3,18 +3,23 @@
 
 
 
-#define DEBUG false          //If set to true, will do debug work like Serial.print
-#define DEBUG_TIMING true  //If set to true, include timing code
+#define DEBUG true         //If set to true, will do debug work like Serial.print
+#define DEBUG_TIMING false  //If set to true, include timing code
 
 //PIN VALUES===========================================================
-#define RECEIVER_PIN_1 	2
-#define RECEIVER_PIN_2	3
-#define RECEIVER_PIN_3	4
-#define RECEIVER_PIN_4	5
-#define RECEIVER_PIN_5	6
-#define RECEIVER_PIN_6	7
-#define RECEIVER_PIN_7	8
-#define RECEIVER_PIN_8	9
+#define RECEIVER_PIN_1 	22
+#define RECEIVER_PIN_2	23
+#define RECEIVER_PIN_3	24
+#define RECEIVER_PIN_4	25
+#define RECEIVER_PIN_5	26
+#define RECEIVER_PIN_6	27
+#define RECEIVER_PIN_7	28
+#define RECEIVER_PIN_8	29
+
+#define FRONT_MOTOR_PIN 2
+#define BACK_MOTOR_PIN 3
+#define LEFT_MOTOR_PIN 4
+#define RIGHT_MOTOR_PIN 5
 
 //RECEIVER VALUES==============================================================
 
