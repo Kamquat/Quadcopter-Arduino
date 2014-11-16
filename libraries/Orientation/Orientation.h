@@ -6,7 +6,7 @@
 class OrientationTwo
 {
 	public:
-	
+		void updateOrientation();
 		double xyzDegree[3];
 
 };

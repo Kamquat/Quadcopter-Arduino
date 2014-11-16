@@ -31,6 +31,7 @@ void loop()
 {
   //Reciever data collected automatically, see Receiver.cpp
   IMUAccess.updateIMUValues();
+  Orientation.updateOrientation();
   
   
   

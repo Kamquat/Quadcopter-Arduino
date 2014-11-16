@@ -1,15 +1,14 @@
 #include "Arduino.h"
 #include "Config.h"
-void setup() {
- Serial.begin(9600);
+#include "Orientation.h"
 
-}
 
-void loop() {
-
-	ax = currentAccelValues[0];
-	ay = currentAccelValues[1];
-	az = currentAccelValues[2];
+void OrientationTwo::updateOrientation() 
+{
+	
+	double ax = IMUAccess.currentAccelValues[0];
+	double ay = IMUAccess.currentAccelValues[1];
+	double az = IMUAccess.currentAccelValues[2];
 	
 	double xAngle = atan( ax / (sqrt(square(ay) + square(az))));
 	double yAngle = atan( ay / (sqrt(square(ax) + square(az))));

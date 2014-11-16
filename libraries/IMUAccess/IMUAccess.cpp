@@ -1,5 +1,5 @@
 /*
-Compass and Barometer no yet ready
+Compass and Barometer not yet ready
 */
 
 
