@@ -8,9 +8,9 @@
 void OrientationTwo::updateOrientation() 
 {
 	
-	double ax = .0087*IMUAccess.currentAccelValues[0];
-	double ay = .0087*IMUAccess.currentAccelValues[1];
-	double az = .0087*IMUAccess.currentAccelValues[2];
+	double ax = IMUAccess.currentAccelValues[0];
+	double ay = IMUAccess.currentAccelValues[1];
+	double az = IMUAccess.currentAccelValues[2];
 	
 	double xAngle = atan( ax / (sqrt((ay)*(ay) + (az)*(az))));
 	double yAngle = atan( ay / (sqrt((ax)*(ax) + (az)*(az))));

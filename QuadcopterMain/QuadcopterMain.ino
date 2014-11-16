@@ -3,10 +3,12 @@
 #include <Config.h>
 #include <Receiver.h>
 #include <Orientation.h>
+#include <Motors.h>
 
 OrientationTwo Orientation;
 IMUAccessTwo IMUAccess;
 ReceiverTwo Receiver;
+motorsTwo Motors;
 
 int totalHz = 0;
 int HzMicros = 0;
@@ -19,6 +21,7 @@ void setup()
   
   IMUAccess.setupDevices();
   Receiver.setupReceiverPins();
+  Motors.setupMotors();
   
   if (DEBUG == true) 
   {
@@ -32,6 +35,7 @@ void loop()
   //Reciever data collected automatically, see Receiver.cpp
   IMUAccess.updateIMUValues();
   Orientation.updateOrientation();
+  Motors.updateMotors();
   
   
   
