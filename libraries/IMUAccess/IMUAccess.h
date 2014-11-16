@@ -50,20 +50,25 @@ class IMUAccessTwo
 	public:
 		bool setupDevices();
 		void updateIMUValues();
-		int currentAccelValues[];
-		int currentGyroValues[];
-		int currentCompassValues[];
+		int currentAccelValues[3];
+		int currentGyroValues[3];
+		int currentCompassValues[3];
+		void testStuff();
 	private:
 		bool setupADXL345();
 		bool setupL3G4200D();
 		bool setupHMC5883L();
 		bool setupBMP085();
-		bool getAccelData(int[]);
-		bool getGyroData(int[]);
-		bool getCompassData(int[]);
+		bool getAccelData();
+		bool getGyroData();
+		bool getCompassData();
 		void getBarometerData();
 		bool readIMU(int,int,int,byte[]);
 		bool writeIMU(int,int, int);
+		
+		int accelMicros,gyroMicros,compassMicros;
+		int accelInterval, gyroInterval, compassInterval;
+		int gyroOffsets[3];
 		//int retrieveValue(int address, int registerAddress);
 	
 };

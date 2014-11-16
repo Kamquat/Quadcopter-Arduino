@@ -15,7 +15,8 @@ void setup()
 {
   Serial.begin(9600);
   Wire.begin();
- 
+  
+  
   IMUAccess.setupDevices();
   Receiver.setupReceiverPins();
   
@@ -34,23 +35,16 @@ void loop()
   
   
   
-  if(DEBUG==true)          {debugSerial();}
-  if(DEBUG_TIMING == true) 
+  
+  if(DEBUG==true)          
   {
-    if(micros()-HzMicros > 1 * 1000000)
-    {
-      Serial.print("repeated "); Serial.print(totalHz); Serial.print(" times that second\n");
-       Serial.print("HzMicros = "); Serial.print(micros()-HzMicros); Serial.print("\n"); 
-      totalHz = 0;
-      delay(500);
-      HzMicros = micros();
-    }
-    //debugTimingSerial();
-    totalHz++;
-  }  
+    debugSerial();
+  }
+  if(DEBUG_TIMING == true) {debugTimingSerial();}
 }
 void debugSerial()
 {
+  
     Serial.print("IMU Values:\n");
         Serial.print("\nAccelerometer Values:");
 	Serial.print("\nX = "); Serial.print(IMUAccess.currentAccelValues[0]);
@@ -69,7 +63,9 @@ void debugSerial()
 	Serial.print("\nY = "); Serial.print(IMUAccess.currentCompassValues[1]);
 	Serial.print("\nZ = "); Serial.print(IMUAccess.currentCompassValues[2]);
         Serial.print("\n\n\n");
-
+        
+        
+/*
     Serial.print("Receiver Values : \n");
         for(int i = 0; i < 8; i++)
         {
@@ -78,13 +74,26 @@ void debugSerial()
           Serial.print(" = "); 
           Serial.print(Receiver.pulseLength[i]);
           Serial.print("uS\n");
-        }
+        }*/
         Serial.print("\n\n\n");
         delay(2000);
       
 }
 void debugTimingSerial()
 {
+  {
+    if(micros()-HzMicros > 1 * 1000000)
+    {
+      Serial.print("repeated "); Serial.print(totalHz); Serial.print(" times that second\n");
+       Serial.print("HzMicros = "); Serial.print(micros()-HzMicros); Serial.print("\n"); 
+      totalHz = 0;
+      delay(500);
+      HzMicros = micros();
+    }
+    //debugTimingSerial();
+    totalHz++;
+  }  
+}
   /*   
   static int maxCount = 100;
   static int iterationCount = 0;
@@ -104,4 +113,3 @@ void debugTimingSerial()
     delay(5000);
     previousMicros = micros();
   }*/
-}

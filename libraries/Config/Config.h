@@ -3,8 +3,8 @@
 
 
 
-#define DEBUG false          //If set to true, will do debug work like Serial.print
-#define DEBUG_TIMING true  //If set to true, include timing code
+#define DEBUG true          //If set to true, will do debug work like Serial.print
+#define DEBUG_TIMING false  //If set to true, include timing code
 
 //PIN VALUES===========================================================
 #define RECEIVER_PIN_1 	2
