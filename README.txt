@@ -53,7 +53,33 @@ NOTES:
 		and output 11V-15V. DO NOT CONNECT TO ARDUINO OR OTHER DEVICES.
 
 --------------------------------------------------------------------------------------
+		DO NOT RUN ESC'S AT LOW POWER
+		top - signal
+		middle - power
+		bottom - ground
+		only need 1 power and 1 ground
+				
 
-	
-	
-	
+		min - 1.0ms (dependent on trim setting for channels 1-4)	
+		max - 1.8ms (dependent on trim setting for channels 1-4)
+		period 20ms
+		Heli1 mode	
+		Stick setting mode 2
+		Throttle reverse - False
+		Channel 1 - RS Left/Right - TBD
+		Channel 2 - RS Up/Down - max/min   
+		Channel 3 - LS Up/Down - max/min
+		Channel 4 - LS Left/Right - min/max
+		Channel 5 - Defined
+		Channel 6 - Flight Mode/Aux3
+		Channel 7 - Defined
+		Channel 8 - Defined
+		Channel 9 - Battery level (not for LiPo)
+
+		Gear/Right Bumper  		Up/Down - 1ms/1.84ms
+		Pitch Trim/Aux2  		cw/ccw - 1.28/1.44
+		Throttle Hold/Left Trigger  	Up/Down - 1.84/1.00
+		Hover Throttle/Right Knob	cc/ccw - 1.84/1.00
+		Hover Pitch/TL Knob		cc/ccw - 1.84/1.00
+		/Left Bumper
+		Flight Mode/Aux3		N/1/2  - 1.00/1.44/1.84
