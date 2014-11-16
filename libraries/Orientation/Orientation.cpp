@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "Config.h"
 #include "Orientation.h"
+#include "IMUAccess.h"
+#include "math.h"
 
 
 void OrientationTwo::updateOrientation() 
@@ -10,20 +12,27 @@ void OrientationTwo::updateOrientation()
 	double ay = IMUAccess.currentAccelValues[1];
 	double az = IMUAccess.currentAccelValues[2];
 	
-	double xAngle = atan( ax / (sqrt(square(ay) + square(az))));
-	double yAngle = atan( ay / (sqrt(square(ax) + square(az))));
-	double zAngle = atan( sqrt(square(ax) + square(ay)) / az);
+	double xAngle = atan( ax / (sqrt((ay)*(ay) + (az)*(az))));
+	double yAngle = atan( ay / (sqrt((ax)*(ax) + (az)*(az))));
+	double zAngle = atan( sqrt((ax)*(ax) + (ay)*(ay)) / az);
 
 	xAngle *= 180.00;   yAngle *= 180.00;   zAngle *= 180.00;
 	xAngle /= 3.141592; yAngle /= 3.141592; zAngle /= 3.141592;
 	
-	xyzDegree[3] = [xAngle yAngle zAngle];
+	xyzDegree[0] = xAngle;
+	xyzDegree[1] = yAngle;
+	xyzDegree[2] = zAngle;
 	
 	if(DEBUG == true)
 	{
-	serial.print(xAngle);
-	serial.print(yAngle);
-	serial.print(zAngle);
+	Serial.print("Values:\n");
+	Serial.print(xAngle);
+	Serial.print("\t");
+	Serial.print(yAngle);
+	Serial.print("\t");
+	Serial.print(zAngle);
+	Serial.print("\n");
+	//delay(2000);
 	}
 	
 }
