@@ -8,10 +8,16 @@
 void OrientationTwo::updateOrientation() 
 {
 	
+<<<<<<< HEAD
 	double x = IMUAccess.currentAccelValues[0];
 	double y = IMUAccess.currentAccelValues[1];
 	double z = IMUAccess.currentAccelValues[2];
 	double f = (.0016)/(4*((1/.0071)+(1/.0087)));
+=======
+	double ax = IMUAccess.currentAccelValues[0];
+	double ay = IMUAccess.currentAccelValues[1];
+	double az = IMUAccess.currentAccelValues[2];
+>>>>>>> origin/master
 	
 	double ax = x*(((4/.0071) - abs(x))*f + .0071);
 	double ay = y*(((4/.0071) - abs(y))*f + .0071);

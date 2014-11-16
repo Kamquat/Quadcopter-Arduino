@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 Orientation KEYWORD1
+=======
+Orientation	KEYWORD1
+>>>>>>> origin/master
