@@ -7,22 +7,13 @@
 
 void OrientationTwo::updateOrientation() 
 {
-	
-	double x = IMUAccess.currentAccelValues[0];
+	/*double x = IMUAccess.currentAccelValues[0];
 	double y = IMUAccess.currentAccelValues[1];
-	double z = IMUAccess.currentAccelValues[2];
-	double f = (.0016)/(4*((1/.0071)+(1/.0087)));
-
-	double ax = x*(((4/.0071) - abs(x))*f + .0071);
-	double ay = y*(((4/.0071) - abs(y))*f + .0071);
-	double az = z*(((4/.0071) - abs(z))*f + .0071);
+	double z = IMUAccess.currentAccelValues[2];*/
 	
-	/*Serial.print(ax);
-	Serial.print("\t");
-	Serial.print(ay);
-	Serial.print("\t");
-	Serial.print(az);
-	Serial.print("\n");*/
+	double ax = Accel_to_G(IMUAccess.currentAccelValues[0]);
+	double ay = Accel_to_G(IMUAccess.currentAccelValues[1]);
+	double az = Accel_to_G(IMUAccess.currentAccelValues[2]);
 	
 	double roll = atan2(-ay,az);
 	double pitch = atan2( ax,(sqrt((ay)*(ay) + (az)*(az))));
@@ -35,6 +26,23 @@ void OrientationTwo::updateOrientation()
 	xyzDegree[1] = pitch;
 	xyzDegree[2] = thrust;
 	
+	double Accel_to_G(double x)
+	{
+		double y = 0;
+		double f = (.0016)/(ACCEL_RESOLUTION*((1/.0071)+(1/.0087)));
+		
+			if (x <= (ACCEL_RESOLUTION*((1/.0071)+(1/.0087)))/2)
+			{
+				y = x*(((ACCEL_RESOLUTION/.0071) - abs(x))*f + .0071);
+			}
+	
+			else
+			{
+				y = x*(-((ACCEL_RESOLUTION/.0087) - abs(x))*f + .0087);
+			}
+	
+		return y;
+	}
 	if(DEBUG == true)
 	{
 	Serial.print("Values:\n");
