@@ -8,29 +8,41 @@
 void OrientationTwo::updateOrientation() 
 {
 	
-	double ax = .0087*IMUAccess.currentAccelValues[0];
-	double ay = .0087*IMUAccess.currentAccelValues[1];
-	double az = .0087*IMUAccess.currentAccelValues[2];
+	double x = IMUAccess.currentAccelValues[0];
+	double y = IMUAccess.currentAccelValues[1];
+	double z = IMUAccess.currentAccelValues[2];
+	double f = (.0016)/(4*((1/.0071)+(1/.0087)));
 	
-	double xAngle = atan( ax / (sqrt((ay)*(ay) + (az)*(az))));
-	double yAngle = atan( ay / (sqrt((ax)*(ax) + (az)*(az))));
-	double zAngle = atan( sqrt((ax)*(ax) + (ay)*(ay)) / az);
+	double ax = x*(((4/.0071) - abs(x))*f + .0071);
+	double ay = y*(((4/.0071) - abs(y))*f + .0071);
+	double az = z*(((4/.0071) - abs(z))*f + .0071);
+	
+	/*Serial.print(ax);
+	Serial.print("\t");
+	Serial.print(ay);
+	Serial.print("\t");
+	Serial.print(az);
+	Serial.print("\n");*/
+	
+	double roll = atan2(-ay,az);
+	double pitch = atan2( ax,(sqrt((ay)*(ay) + (az)*(az))));
+	double thrust = sqrt((ax)*(ax) + (ay)*(ay) + (az)*(az));
 
-	xAngle *= 180.00;   yAngle *= 180.00;   zAngle *= 180.00;
-	xAngle /= 3.141592; yAngle /= 3.141592; zAngle /= 3.141592;
+	roll *= 180.00;   pitch *= 180.00;   //zAngle *= 180.00;
+	roll /= 3.141592; pitch /= 3.141592; //zAngle /= 3.141592;
 	
-	xyzDegree[0] = xAngle;
-	xyzDegree[1] = yAngle;
-	xyzDegree[2] = zAngle;
+	xyzDegree[0] = roll;
+	xyzDegree[1] = pitch;
+	xyzDegree[2] = thrust;
 	
 	if(DEBUG == true)
 	{
 	Serial.print("Values:\n");
-	Serial.print(xAngle);
+	Serial.print("Roll: "); Serial.print(roll);
 	Serial.print("\t");
-	Serial.print(yAngle);
+	Serial.print("Pitch: "); Serial.print(pitch);
 	Serial.print("\t");
-	Serial.print(zAngle);
+	Serial.print("Thrust: "); Serial.print(thrust);
 	Serial.print("\n");
 	//delay(2000);
 	}
