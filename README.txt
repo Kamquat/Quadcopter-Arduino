@@ -1,3 +1,10 @@
+NOTE: The updated code will require a change in the following location:
+Program Files (x86)\Arduino\hardware\arduino\sam\variants\arduino_due_x\variant.h
+change PWM_FREQUENCY from 1000 to 500, otherwise the motors will not output good signals
+
+
+
+
 Quadcopter-Arduino
 ===================
 To properly use these files using the arduino IDE:

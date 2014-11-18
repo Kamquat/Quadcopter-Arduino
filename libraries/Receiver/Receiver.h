@@ -23,7 +23,7 @@ class ReceiverTwo
 {
 	public:
 		void setupReceiverPins();
-		volatile int pulseLength[8];
+		volatile int channelWidth[8];
 		volatile int highTime[8];
 
 };

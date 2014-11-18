@@ -1,19 +1,10 @@
 /*
 Compass and Barometer not yet ready
 */
-
-
 #include "IMUAccess.h"
 #include "Arduino.h"
 #include "Wire.h"
 #include "Config.h"
-	/*
-	int accelMicros = 0, gyroMicros = 0, compassMicros = 0;
-	int accelInterval = 0, gyroInterval = 0, compassInterval = 0;
-	int currentAccelValues[3] = {0};
-	int currentCompassValues[3] = {0};
-	int gyroOffsets[3] = {0};
-	*/
 	
 bool IMUAccessTwo::setupDevices(void)
 {
@@ -235,7 +226,7 @@ bool IMUAccessTwo::getAccelData()
 		for(int i = 0; i < 3; i++)
 		{
 			temp = currentAccelValues[i];
-			if(temp > 32767)   //this means the value is negative, must fix
+			if(temp > 32767)   //this means the value is negative, must be fixed
 			{
 				int j = 31;
 				while(bitRead(temp,j)==0) //sign extends number
@@ -256,6 +247,7 @@ bool IMUAccessTwo::getAccelData()
 					}
 				}
 				temp += 1;
+				//This is a low pass filter to help a bit with noise
 				currentAccelValues[i] = -temp;		
 			}
 		}
@@ -367,6 +359,7 @@ bool IMUAccessTwo::readIMU(int deviceAddress, int dataAddress,int numBytes, byte
 	
     if(successfulTransmission != 0)
     {
+	/*
 		if(DEBUG == true)
 		{
 			Serial.print("read failure on: ");
@@ -374,7 +367,7 @@ bool IMUAccessTwo::readIMU(int deviceAddress, int dataAddress,int numBytes, byte
 			Serial.print("due to endTransmission = ");
 			Serial.print(successfulTransmission);
 			Serial.print("\n");
-		}
+		}*/
     }
     else
     {

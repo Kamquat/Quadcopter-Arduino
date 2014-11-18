@@ -9,6 +9,9 @@ class OrientationTwo
 	public:
 		void updateOrientation();
 		void setupOrientation();
+		double roll;
+		double pitch;
+		double thrust;
 		
 		double xyzDegree[3];
 		

@@ -43,6 +43,11 @@
 #define HMC5883L_MODE			0x02 //this sets the compass to continuous measurement mode
 #define HMC5883L_DATA	        0x03
 
+
+
+#define ACCEL_LPF				95
+
+
 //bool public setupHMC5883L();
 
 class IMUAccessTwo
@@ -51,6 +56,9 @@ class IMUAccessTwo
 		bool setupDevices();
 		void updateIMUValues();
 		int currentAccelValues[3];
+		int accelAverageArray[][3];
+		int gyroAverageArray[];
+		int compassAverageArray[];
 		int currentGyroValues[3];
 		int currentCompassValues[3];
 		void testStuff();

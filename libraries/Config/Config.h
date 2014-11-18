@@ -16,18 +16,29 @@
 #define RECEIVER_PIN_7	28
 #define RECEIVER_PIN_8	29
 
-#define FRONT_MOTOR_PIN 2
-#define BACK_MOTOR_PIN 3
-#define LEFT_MOTOR_PIN 4
-#define RIGHT_MOTOR_PIN 5
+#define FRONT_MOTOR_PIN 6
+#define BACK_MOTOR_PIN 7
+#define LEFT_MOTOR_PIN 8
+#define RIGHT_MOTOR_PIN 9
 
 //RECEIVER VALUES==============================================================
+#define RECEIVER_ROLL		0
+#define RECEIVER_PITCH		1
+#define RECEIVER_THROTTLE 	2
+#define RECEIVER_YAW		3
+#define RECEIVER_BUTTON1	4
+#define RECEIVER_MODE		5
+#define RECEIVER_BUTTON2	6
+#define RECEIVER_KNOB1		7
+
+
 
 
 //IMU VALUES================================================================
 //Important value for calculating current acceleration value.
 #define ACCEL_RESOLUTION 1    //0 = +-2g, 1 = +-4g, 2 = +- 8g, 3 = +-16g
 #define ACCEL_FREQUENCY  10   //13 = 800Hz, 12 = 400Hz, 11 = 200Hz, 10 = 100Hz, 9 = 50Hz and so on
+//THe code is not yet set up to average accel values. Might as well keep it at same frequency as ESC_SIGNAL_PERIOD
 
 
 //CTRL_REG 1----------------------
@@ -43,6 +54,8 @@
 #define COMPASS_FREQUENCY  			5      //3 =7.5Hz, 4 =15Hz, 5 =30Hz, 6 =75Hz
 #define COMPASS_GAIN       			0      //see HMC datasheet page 13 0 = .73mG/LSb
 #define COMPASS_SAMPLES_AVERAGED	3      //I Think this helps average the output values
+
+#define RECALCULATE_MOTOR_PERIOD 1000000./100 //10,000 microseconds 100Hz
 
 
 #endif

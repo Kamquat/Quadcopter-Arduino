@@ -15,7 +15,7 @@
 	{
 		for(int i = 0; i < 8; i++)
 		{
-			Receiver.pulseLength[i] = 0;
+			Receiver.channelWidth[i] = 0;
 			Receiver.highTime[i] = 0;
 		}
 		pinMode(RECEIVER_PIN_1,INPUT);
@@ -41,7 +41,6 @@
 		
 		pinMode(RECEIVER_PIN_8,INPUT);
 		attachInterrupt(RECEIVER_PIN_8,receiverChange8,CHANGE);
-		Receiver.pulseLength[0] = 0;
 		
 	}
 	void receiverChange1()
@@ -52,7 +51,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[0] = micros()-Receiver.highTime[0];
+		Receiver.channelWidth[0] = micros()-Receiver.highTime[0];
 	  }
 	}
 	void receiverChange2()
@@ -63,7 +62,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[1] = micros()-Receiver.highTime[1];
+		Receiver.channelWidth[1] = micros()-Receiver.highTime[1];
 		
 	  }
 	}
@@ -75,7 +74,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[2] = micros()-Receiver.highTime[2];
+		Receiver.channelWidth[2] = micros()-Receiver.highTime[2];
 	  }
 	}
 	void receiverChange4()
@@ -86,7 +85,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[3] = micros()-Receiver.highTime[3];
+		Receiver.channelWidth[3] = micros()-Receiver.highTime[3];
 	  }
 	}
 	void receiverChange5()
@@ -97,7 +96,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[4] = micros()-Receiver.highTime[4];
+		Receiver.channelWidth[4] = micros()-Receiver.highTime[4];
 	  }
 	}
 	void receiverChange6()
@@ -108,7 +107,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[5] = micros()-Receiver.highTime[5];
+		Receiver.channelWidth[5] = micros()-Receiver.highTime[5];
 	  }
 	}
 	void receiverChange7()
@@ -119,7 +118,7 @@
 	  }
 	  else
 	  {
-		Receiver.pulseLength[6] = micros()-Receiver.highTime[6];
+		Receiver.channelWidth[6] = micros()-Receiver.highTime[6];
 	  }
 	}
 	void receiverChange8()
@@ -130,7 +129,7 @@
 		}
 		else
 		{
-			Receiver.pulseLength[7] = micros()-Receiver.highTime[7];
+			Receiver.channelWidth[7] = micros()-Receiver.highTime[7];
 		}
 	}
 
