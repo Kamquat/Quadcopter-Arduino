@@ -13,7 +13,8 @@ class OrientationTwo
 		double pitch;
 		double thrust;
 		
-		double xyzDegree[3];
+		double currentOrientation[4];
+		double desiredOrientation[4]
 		
 		private:
 		int previousTime;

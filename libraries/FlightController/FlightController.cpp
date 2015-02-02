@@ -1,3 +1,8 @@
+/*This function sets up the motors and, after receiving values from
+the PID loop, 
+
+*/
+
 #include "Arduino.h"
 #include "IMUAccess.h"
 #include "Config.h"

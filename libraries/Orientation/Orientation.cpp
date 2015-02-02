@@ -1,3 +1,18 @@
+/* takes inputs from the accelerometer and remote, 
+and produces values for current roll/pitch/thust (eventually heading)
+as well as the desired version of those values from the remote
+
+
+
+INPUTS:
+IMUAccess.currentAccelValues[0,1,2]
+
+OUTPUTS
+currentOrientation[0-3]    {roll,pitch,thrust,heading}
+desiredOrientation[0-3]    {roll,pitch,thrust,heading}
+
+*/
+
 #include "Arduino.h"
 #include "Config.h"
 #include "Orientation.h"
@@ -30,14 +45,26 @@ void OrientationTwo::updateOrientation()
 		roll *= 180.00;   pitch *= 180.00;   //zAngle *= 180.00;
 		roll /= 3.141592; pitch /= 3.141592; //zAngle /= 3.141592;
 		
-		xyzDegree[0] = roll;
-		xyzDegree[1] = pitch;
-		xyzDegree[2] = thrust;
+		currentOrientation[0] = roll;
+		currentOrientation[1] = pitch;
+		currentOrientation[2] = thrust;
 	}
 }
 
 double Accel_to_G(double x)
 	{
+	/*
+		double y = 0;
+		if(x < 0)
+		{
+			y = x * .0071;
+		}
+		else
+		{
+			y = x * .0087;
+		}*/
+		
+	
 		double y = 0;
 		double f = (.0016)/(ACCEL_RESOLUTION*((1/.0071)+(1/.0087)));
 		
@@ -52,4 +79,5 @@ double Accel_to_G(double x)
 			}
 	
 		return y;
+		
 	}

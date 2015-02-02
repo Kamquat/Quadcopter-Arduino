@@ -31,8 +31,7 @@ void setup()
 {
   Serial.begin(9600);
   Wire.begin();
-   debugPrevTime= 0;
-  
+  debugPrevTime= 0;
   
   IMUAccess.setupDevices();
   Receiver.setupReceiverPins();
