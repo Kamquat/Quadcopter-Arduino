@@ -7,6 +7,7 @@ be sure to limit the maximum thrust below full powerex: 1950 and not 2000, or th
 reading the input. It does not seem to work for all pins, we use 6-9 for the motors*/
 
 
+//But not sex, thats gay
 #include <IMUAccess.h>
 #include <Wire.h>
 #include <Config.h>
