@@ -9,11 +9,11 @@ the PID loop,
 #include "FlightController.h"
 #include "PID.h"
 #include "Receiver.h"
+#include "Orientation.h"
 
 
 
 //these are for testing
-int throttle = 1500;
 
 void FlightControllerTwo::setupMotors()
 {
@@ -82,7 +82,6 @@ void FlightControllerTwo::flightControl()
 }
 void FlightControllerTwo::calculateMotorPower()
 {
-	PID.calculatePIDAdjustments();
 	//need to update using PID library when it is available
 	//just add a period after each PID ex. PID.throttle
 	if(Receiver.channelWidth[RECEIVER_MODE] <1200)  //This is SAFE mode, motor set to lowest values, this should be mode quad starts up in
@@ -95,15 +94,30 @@ void FlightControllerTwo::calculateMotorPower()
 	}
 	//flat mode, listens to throttle
 	else if(1700 > Receiver.channelWidth[RECEIVER_MODE] &&Receiver.channelWidth[RECEIVER_MODE] >1200) //currently hold flat orientation mode
-	{
+	{//flat mode, listens to throttle, but maintains a vertical orientation
+	
+	/*  May be removed as later code does power checks
 		int throttle;
 		if(throttle < MIN_POWER)      throttle = MIN_POWER;
 		else if(throttle > MAX_POWER) throttle = MAX_POWER;
+		*/
 		
+		double tempUntilIGetMinhsCode[] = {0,0,0}; //will be fixed when minh gets his shit together
+		PID.updateFlatPID(Orientation.currentOrientation, tempUntilIGetMinhsCode);
+		int throttle = Receiver.channelWidth[RECEIVER_THROTTLE];
+		
+		
+		//Following segment calculates desired motor changes 
 		motorPower[0] = throttle + PID.pitchAdjustment + PID.yawAdjustment;
 		motorPower[1] = throttle - PID.pitchAdjustment + PID.yawAdjustment;
 		motorPower[2] = throttle + PID.rollAdjustment  - PID.yawAdjustment;
 		motorPower[3] = throttle - PID.rollAdjustment  - PID.yawAdjustment;
+		
+		
+		
+		
+		//Following ensures value is within given parameters, attempts to equally level
+		//all inputs if a value is out of range
 		int undershoot, overshoot;
 		for(int i = 0; i < 4; i++)
 		{
@@ -120,9 +134,10 @@ void FlightControllerTwo::calculateMotorPower()
 			if(motorPower[i] - MAX_POWER > overshoot)  {motorPower[i] = MAX_POWER;}
 		}
 	}
-	else   //Controlled by receiver mode
+	else   //Controlled by receiver (stable mode)
 	{
-		
+		double rotationRates[] = {0,0,0,0}; //this line will be changed once minh gets his shit together
+		PID.updateStablePID(Orientation.currentOrientation, Orientation.desiredOrientation, rotationRates);
 	}
 	
 }

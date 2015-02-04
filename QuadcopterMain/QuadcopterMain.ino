@@ -68,18 +68,14 @@ void debugSerial()
       int debugPeriod = 2000000;
       if(micros()-debugPrevTime > debugPeriod)
       {
-        Serial.print("IMU Values:\n");
-        Serial.print("\nAccelerometer Values:");
+          Serial.print("IMU Values:\n");
+          Serial.print("\nAccelerometer Values:");
   	Serial.print("\nX = "); Serial.print(IMUAccess.currentAccelValues[0]);
   	Serial.print("\nY = "); Serial.print(IMUAccess.currentAccelValues[1]);
   	Serial.print("\nZ = "); Serial.print(IMUAccess.currentAccelValues[2]);
-  
-        Serial.print("\n\nGRAVITY Values:");
-  	Serial.print("\nG_X = "); Serial.print(Orientation.gx);
-  	Serial.print("\nG_Y = "); Serial.print(Orientation.gy);
-  	Serial.print("\nG_Z = "); Serial.print(Orientation.gz);  	
+  	
   		
-  	/*Serial.print("\nGyro Values:");
+  	Serial.print("\nGyro Values:");
   	Serial.print("\nX = "); Serial.print(IMUAccess.currentGyroValues[0]);
   	Serial.print("\nY = "); Serial.print(IMUAccess.currentGyroValues[1]);
   	Serial.print("\nZ = "); Serial.print(IMUAccess.currentGyroValues[2]);
@@ -89,9 +85,9 @@ void debugSerial()
   	Serial.print("\nX = "); Serial.print(IMUAccess.currentCompassValues[0]);
   	Serial.print("\nY = "); Serial.print(IMUAccess.currentCompassValues[1]);
   	Serial.print("\nZ = "); Serial.print(IMUAccess.currentCompassValues[2]);
-        Serial.print("\n\n\n");*/
+        Serial.print("\n\n\n");
       
-        Serial.print("\n\nReceiver Values : \n");
+        Serial.print("Receiver Values : \n");
         for(int i = 0; i < 8; i++)
         {
             Serial.print("Channel "); 
@@ -150,4 +146,3 @@ void debugTimingSerial()
     delay(5000);
     previousMicros = micros();
   }*/
-

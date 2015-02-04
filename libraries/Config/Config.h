@@ -38,7 +38,7 @@
 //Important value for calculating current acceleration value.
 #define ACCEL_RESOLUTION 1    //0 = +-2g, 1 = +-4g, 2 = +- 8g, 3 = +-16g
 #define ACCEL_FREQUENCY  10   //13 = 800Hz, 12 = 400Hz, 11 = 200Hz, 10 = 100Hz, 9 = 50Hz and so on
-//The code is not yet set up to average accel values. Might as well keep it at same frequency as ESC_SIGNAL_PERIOD
+//THe code is not yet set up to average accel values. Might as well keep it at same frequency as ESC_SIGNAL_PERIOD
 
 
 //CTRL_REG 1----------------------
@@ -56,6 +56,11 @@
 #define COMPASS_SAMPLES_AVERAGED	3      //I Think this helps average the output values
 
 #define RECALCULATE_MOTOR_PERIOD 1000000./100 //10,000 microseconds 100Hz
+
+//PID VALUES=======================================================================
+#define Pcorrection		1
+#define Icorrection		0
+#define Dcorrection		0
 
 
 #endif
