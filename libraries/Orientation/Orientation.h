@@ -12,13 +12,14 @@ class OrientationTwo
 		double roll;
 		double pitch;
 		double thrust;
+		double gx, gy, gz;
 		
-		double currentOrientation[4];
-		double desiredOrientation[4]
+		double currentOrientation[3];
+		double desiredOrientation[3];
 		
 		private:
 		int previousTime;
-
+	
 };
 extern OrientationTwo Orientation;
 

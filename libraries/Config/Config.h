@@ -38,7 +38,7 @@
 //Important value for calculating current acceleration value.
 #define ACCEL_RESOLUTION 1    //0 = +-2g, 1 = +-4g, 2 = +- 8g, 3 = +-16g
 #define ACCEL_FREQUENCY  10   //13 = 800Hz, 12 = 400Hz, 11 = 200Hz, 10 = 100Hz, 9 = 50Hz and so on
-//THe code is not yet set up to average accel values. Might as well keep it at same frequency as ESC_SIGNAL_PERIOD
+//The code is not yet set up to average accel values. Might as well keep it at same frequency as ESC_SIGNAL_PERIOD
 
 
 //CTRL_REG 1----------------------
