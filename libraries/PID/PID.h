@@ -14,6 +14,7 @@ class PIDTwo
 	void updateStablePID(double[], double[], double[]);
 	void updateAcroPID(void);
 	void setupPID(void);
+	double calculatePID(double,double&,double,double,double);
 	
 	
 	//these are the values used by the flight controller
@@ -23,6 +24,10 @@ class PIDTwo
 	
 	
 	private:
+	
+	
+	
+	
 	double pitchAngleCumError;
 	double rollAngleCumError;
 	
@@ -37,6 +42,7 @@ class PIDTwo
 //500 because motor input range is 1000-2000, and we want half that, may need adjustment
 #define PITCH_ERROR_TO_POWER = 500.00/90
 #define ROLL_ERROR_TO_POWER = 500.00/180
+//#define NUMBER_CUM_ERROR_SAMPLES	20
 
 extern PIDTwo PID;
 #endif

@@ -33,34 +33,44 @@ void PIDTwo::setupPID()
 	rollRateCumError = 0;
 	yawRateCumError = 0;
 }
-void PIDTwo::updateFlatPID(double[] currentOrientation, double[] currentRotationRates)
+void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRates[])
 {//this PID loop holds quadcopter in normal Orientation
 
 	//currentOrientation 0 = roll, 1 = pitch, 2 = thrust
 	
 	//this is supposed to be (flatPitch)- currentOrientation[1] and so on
 	//I am uncertain if  this is already the correct implementation
-	pitchAngleError = -currentOrientation[1];
-	rollAngleError = -currentOrientation[0];
 	
-	pitchAngleCumError+=pitchAngleError;
-	rollAngleCumError+=rollAngleError
+	
+	double pitchAngleError = -currentOrientation[1];
+	double rollAngleError = -currentOrientation[0];
+	
 	
 	//I do not yet know how to calculate this, but it will be done using
 	//the gyro rotation rates
-	pitchRateCumError += 0;
-	rollRateCumError  += 0;
-	yawRateCumError   += 0;
 	
 	
 	
 	
-	double desiredPitchRate = calculatePID(currentOrientation[1],pitchAngleCumError);
-	double desiredRollRate = calculatePID(currentOrientation[0],rollAngleCumError);
+	double desiredPitchRate = calculatePID(pitchAngleError,pitchAngleCumError, P_PITCH_ANGLE,I_PITCH_ANGLE,D_PITCH_ANGLE);
+	double desiredRollRate = calculatePID(rollAngleError,rollAngleCumError, P_ROLL_ANGLE,I_ROLL_ANGLE,D_ROLL_ANGLE);
 	
-	pitchAdjustment = calculatePID(currentRotationRates[1],pitchRateCumError);
-	rollAdjustment = calculatePID(currentRotationRates[0],rollRateCumError);
-	yawAdjustment = calculatePID(currentRotationRates[2],yawRateCumError);
+	double pitchRateError = 0;
+	double rollRateError = 0;
+	double yawRateError = 0;
+	
+	/* When Minh gets his shit together and gives me the fucking stuff
+	double pitchRateError = desiredPitchRate - Orientation.currentPitchRate;
+	double rollRateError = desiredPRollRate - Orientation.currentRollRate;
+	double yawRateError = -Orientation.currentYawRate;
+	*/
+	
+	
+	
+	
+	pitchAdjustment = calculatePID(pitchRateError,pitchRateCumError,P_PITCH_RATE,I_PITCH_RATE,D_PITCH_RATE) ;
+	rollAdjustment = calculatePID(rollRateError,rollRateCumError,P_ROLL_RATE,I_ROLL_RATE,D_ROLL_RATE);
+	yawAdjustment = calculatePID(yawRateError,yawRateCumError,P_YAW_RATE,I_YAW_RATE,D_YAW_RATE);
 	
 	
 	//XXXX_ERROR_TO_POWER converts the degrees into motor power, 
@@ -88,26 +98,34 @@ void PIDTwo::updateFlatPID(double[] currentOrientation, double[] currentRotation
 	
 
 }
-void PIDTwo::updateStablePID(double[] currentOrientation, double[] desiredOrientation, double[] currentRotationRates)
+void PIDTwo::updateStablePID(double currentOrientation[], double desiredOrientation[], double currentRotationRates[])
 {
 	
 }
-void calculatePID(double currentRate, double Error)
+double PIDTwo::calculatePID(double error, double &cumError, double P, double I, double D)
 {
 	
-	dt = millis() - prevTime;
+	int dt = millis() - prevTime;
 	prevTime = millis();
 	
+	double Pcorrection = P*error;
+	
+	double integral = I * error * dt /1000.0;
+	double Icorrection = integral + cumError;
+	cumError += integral;
 	
 	
+	//D value may be considered later
+	double Dcorrection = 0;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	return Pcorrection + Icorrection + Dcorrection;
 }
+	
+	
+	
+	
+	
+	
+	
+	
+	
