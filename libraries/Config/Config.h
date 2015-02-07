@@ -2,7 +2,7 @@
 #define Config_h
 
 
-
+#define ARMED false
 #define DEBUG true         //If set to true, will do debug work like Serial.print
 #define DEBUG_TIMING false  //If set to true, include timing code
 
@@ -46,7 +46,7 @@
 #define GYRO_DATA_BANDWIDTH 0    //Has to do with "Cut-Off" See page 29/30
 
 //CTRL_REG 4----------------------
-#define GYRO_DATA_SCALE  0        //0 = 250dps, 01 = 500dps, 2 = 2000 dps
+#define GYRO_DATA_SCALE  0        //0 = 8.75mdps/digit, 01 = 17.5mdps/digit, 2 = 70mdps/digit
 //NOTE mDPS based on GYRO_DATA_SCALE 0 = 8.75, 1 = 17.5, 2 = 70
 
 //#define GYRO_RANGE     0         //
@@ -58,9 +58,25 @@
 #define RECALCULATE_MOTOR_PERIOD 1000000./100 //10,000 microseconds 100Hz
 
 //PID VALUES=======================================================================
-#define Pcorrection		1
-#define Icorrection		0
-#define Dcorrection		0
+#define P_PITCH_ANGLE		1
+#define I_PITCH_ANGLE		0
+#define D_PITCH_ANGLE		0
+
+#define P_ROLL_ANGLE		1
+#define I_ROLL_ANGLE		0
+#define D_ROLL_ANGLE		0
+
+#define P_PITCH_RATE		1
+#define I_PITCH_RATE		0
+#define D_PITCH_RATE		0
+
+#define P_ROLL_RATE			1
+#define I_ROLL_RATE			0
+#define D_ROLL_RATE			0
+
+#define P_YAW_RATE			1
+#define I_YAW_RATE			0
+#define D_YAW_RATE			0
 
 
 #endif
