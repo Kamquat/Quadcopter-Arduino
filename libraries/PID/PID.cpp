@@ -55,48 +55,28 @@ void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRa
 	double desiredPitchRate = calculatePID(pitchAngleError,pitchAngleCumError, P_PITCH_ANGLE,I_PITCH_ANGLE,D_PITCH_ANGLE);
 	double desiredRollRate = calculatePID(rollAngleError,rollAngleCumError, P_ROLL_ANGLE,I_ROLL_ANGLE,D_ROLL_ANGLE);
 	
-	double pitchRateError = 0;
-	double rollRateError = 0;
-	double yawRateError = 0;
 	
-	/* When Minh gets his shit together and gives me the fucking stuff
-	double pitchRateError = desiredPitchRate - Orientation.currentPitchRate;
-	double rollRateError = desiredPRollRate - Orientation.currentRollRate;
-	double yawRateError = -Orientation.currentYawRate;
-	*/
+	//desired - current
+	
+	//currentRotationRates are coded in, but still isn't coded
+	double pitchRateError = pitchAngleError - currentRotationRates[1];
+	double rollRateError = rollAngleError - currentRotationRates[0];
+	double yawRateError = -currentRotationRates[3];
 	
 	
 	
 	
-	pitchAdjustment = calculatePID(pitchRateError,pitchRateCumError,P_PITCH_RATE,I_PITCH_RATE,D_PITCH_RATE) ;
+	
+	pitchAdjustment = calculatePID(pitchRateError,pitchRateCumError,P_PITCH_RATE,I_PITCH_RATE,D_PITCH_RATE);
 	rollAdjustment = calculatePID(rollRateError,rollRateCumError,P_ROLL_RATE,I_ROLL_RATE,D_ROLL_RATE);
 	yawAdjustment = calculatePID(yawRateError,yawRateCumError,P_YAW_RATE,I_YAW_RATE,D_YAW_RATE);
 	
 	
-	//XXXX_ERROR_TO_POWER converts the degrees into motor power, 
-	//uncertain of value yet
-	
-	//P SEGMENT
-	//Pitch/Roll come in -180:180
-	
-	/*
-	tPitchAngleAdjustment = Pcorrection * pitchAngleError;
-	tRollAngleAdjustment = Pcorrection * rollAngleError;
-	tYawAngleAdjustment = Pcorrection * yawAngleError;
-	*/
-	
-	//I SEGMENT
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
+	pitchAdjustment *= 	RATE_TO_POWER;
+	rollAdjustment *=  	RATE_TO_POWER;
+	yawAdjustment *=   	RATE_TO_POWER;
 }
 void PIDTwo::updateStablePID(double currentOrientation[], double desiredOrientation[], double currentRotationRates[])
 {

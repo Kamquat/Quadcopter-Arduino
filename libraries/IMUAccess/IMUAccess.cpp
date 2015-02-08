@@ -11,6 +11,7 @@ bool IMUAccessTwo::setupDevices(void)
 	accelMicros = 0, gyroMicros = 0, compassMicros = 0;
 	accelInterval = 0, gyroInterval = 0, compassInterval = 0;
 	gyroOffsets[3] = {0};
+	previousAccelValues = {0,0,0};
 	//currentAccelValues[3] = {0};
 	//currentCompassValues[3] = {0};
 	//currentGyroValues[3] = {0};
@@ -67,7 +68,17 @@ void IMUAccessTwo::updateIMUValues(void)
 	if(micros()-accelMicros > accelInterval)  //Accesses Accelerometer at frequency from Config
 	{
 		bool goodAccelRead = getAccelData();
-		if(goodAccelRead ==true) {accelMicros = micros();}
+		if(goodAccelRead ==true) 
+		{
+			accelMicros = micros();
+			for(int i = 0; i<3; i++)
+			{
+				//this is a high pass filter
+				currentAccelValues[i] = currentAccelValues[i] * ACCEL_HPF_VALUE + (1.-ACCEL_HPF_VALUE)*incomingAccelValues[i];
+			}
+		
+		
+		}
 	}
 	if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
 	{
@@ -217,15 +228,17 @@ bool IMUAccessTwo::getAccelData()
 	
 	if(goodRead == true)
 	{
-		currentAccelValues[0] = incomingValues[1]<<8 | incomingValues[0];
-		currentAccelValues[1] = incomingValues[3]<<8 | incomingValues[2];
-		currentAccelValues[2] = incomingValues[5]<<8 | incomingValues[4];
+		incomingAccelValues = {0,0,0};
+		
+		incomingAccelValues[0] = incomingValues[1]<<8 | incomingValues[0];
+		incomingAccelValues[1] = incomingValues[3]<<8 | incomingValues[2];
+		incomingAccelValues[2] = incomingValues[5]<<8 | incomingValues[4];
 	
 	
 		int temp;
 		for(int i = 0; i < 3; i++)
 		{
-			temp = currentAccelValues[i];
+			temp = incomingAccelValues[i];
 			if(temp > 32767)   //this means the value is negative, must be fixed
 			{
 				int j = 31;
@@ -248,7 +261,7 @@ bool IMUAccessTwo::getAccelData()
 				}
 				temp += 1;
 				//This is a low pass filter to help a bit with noise
-				currentAccelValues[i] = -temp;		
+				incomingAccelValues[i] = -temp;		
 			}
 		}
 	}

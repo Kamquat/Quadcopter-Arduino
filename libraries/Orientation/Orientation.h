@@ -2,26 +2,44 @@
 #define Orientation_h
 #include "Arduino.h"
 
-#define ORIENT_PERIOD 10000 //10,000 microseconds = 100Hz
+#define COMPLEMENT_CONST .95
 
 class OrientationTwo
 {
 	public:
-		void updateOrientation();
+		void updateOrientation(int);
 		void setupOrientation();
-		double roll;
-		double pitch;
-		double thrust;
-		double gx, gy, gz;
 		
 		double currentOrientation[3];
 		double desiredOrientation[3];
 		
+		double currentGyroRates[3];
+		
+		
+		
+		//begin Minh's segment
+		
+		void setupAngularPosition();
+		void updateAngularPosition(int);
+		
+		double X_angle;
+		double Y_angle;
+		double Z_angle;
+
+		double axisChange[3];
+		
+		
+		
+		
 		private:
 		int previousTime;
+		
+		//minh's
+		int prevTime;
 	
 };
 extern OrientationTwo Orientation;
+
 
 
 

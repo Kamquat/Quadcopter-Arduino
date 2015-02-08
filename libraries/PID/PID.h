@@ -40,8 +40,7 @@ class PIDTwo
 };
 
 //500 because motor input range is 1000-2000, and we want half that, may need adjustment
-#define PITCH_ERROR_TO_POWER = 500.00/90
-#define ROLL_ERROR_TO_POWER = 500.00/180
+#define RATE_TO_POWER 100.0
 //#define NUMBER_CUM_ERROR_SAMPLES	20
 
 extern PIDTwo PID;

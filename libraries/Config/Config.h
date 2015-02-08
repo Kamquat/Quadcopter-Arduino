@@ -55,7 +55,7 @@
 #define COMPASS_GAIN       			0      //see HMC datasheet page 13 0 = .73mG/LSb
 #define COMPASS_SAMPLES_AVERAGED	3      //I Think this helps average the output values
 
-#define RECALCULATE_MOTOR_PERIOD 1000000./100 //10,000 microseconds 100Hz
+#define RECALCULATE_MOTOR_PERIOD 1000000./1000 //10,00 microseconds 1000Hz
 
 //PID VALUES=======================================================================
 #define P_PITCH_ANGLE		1

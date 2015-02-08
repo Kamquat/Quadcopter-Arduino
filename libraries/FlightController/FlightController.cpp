@@ -27,11 +27,8 @@ void FlightControllerTwo::setupMotors()
     digitalWrite( BACK_MOTOR_PIN,  LOW);
     digitalWrite( LEFT_MOTOR_PIN,  LOW);
     digitalWrite( RIGHT_MOTOR_PIN, LOW);
-	motorState[0] = false; 
-	motorState[1] = false; 
-	motorState[2] = false; 
-	motorState[3] = false;
 	
+	//brings the Write resolution to 0-2047
 	analogWriteResolution(11);
 	
 	for(int i = 0; i < 4; i++) {motorPower[i] = {0};}
@@ -45,45 +42,29 @@ void FlightControllerTwo::setupMotors()
 void FlightControllerTwo::flightControl()
 {
 	
-	int currentTime = micros()-previousPulseTime;
-	/*
-	if(motorState[0] && iteration > motorPower[0]) 
-		{digitalWrite(FRONT_MOTOR_PIN,LOW);motorState[0] = false;}
-		
-	if(motorState[1] && iteration > motorPower[1]) 
-		{digitalWrite(BACK_MOTOR_PIN, LOW);motorState[1] = false;}
-		
-	if(motorState[2] && iteration > motorPower[2]) 
-		{digitalWrite(LEFT_MOTOR_PIN, LOW);motorState[2] = false;}
-		
-	if(motorState[3] && iteration > motorPower[3]) 
-		{digitalWrite(RIGHT_MOTOR_PIN,LOW);motorState[3] = false;}
-	*/
-	if(currentTime > RECALCULATE_MOTOR_PERIOD)
+	int dt = micros()-previousPulseTime;
+	if(dt > RECALCULATE_MOTOR_PERIOD)
 	{
 		previousPulseTime = micros();
-		/*
-		digitalWrite( FRONT_MOTOR_PIN, HIGH);
-		digitalWrite( BACK_MOTOR_PIN,  HIGH);
-		digitalWrite( LEFT_MOTOR_PIN,  HIGH);
-		digitalWrite( RIGHT_MOTOR_PIN, HIGH);
-		motorState[0] = true; 
-		motorState[1] = true; 
-		motorState[2] = true; 
-		motorState[3] = true;*/
+		Orientation.updateOrientation(dt);
 		calculateMotorPower();
 	}
-	
-	analogWrite(FRONT_MOTOR_PIN,motorPower[0]*CHANGE_CONSTANT);
-	analogWrite(BACK_MOTOR_PIN ,motorPower[1]*CHANGE_CONSTANT);
-	analogWrite(LEFT_MOTOR_PIN ,motorPower[2]*CHANGE_CONSTANT);
-	analogWrite(RIGHT_MOTOR_PIN,motorPower[3]*CHANGE_CONSTANT);
+	//this must
+	if(ARMED == true)
+	{
+		//change constant is necessary because analogWrite has a range of 0-2047
+		analogWrite(FRONT_MOTOR_PIN,motorPower[0]*CHANGE_CONSTANT);
+		analogWrite(BACK_MOTOR_PIN ,motorPower[1]*CHANGE_CONSTANT);
+		analogWrite(LEFT_MOTOR_PIN ,motorPower[2]*CHANGE_CONSTANT);
+		analogWrite(RIGHT_MOTOR_PIN,motorPower[3]*CHANGE_CONSTANT);
+	}
 	
 }
 void FlightControllerTwo::calculateMotorPower()
 {
 	//need to update using PID library when it is available
 	//just add a period after each PID ex. PID.throttle
+	
 	if(Receiver.channelWidth[RECEIVER_MODE] <1200)  //This is SAFE mode, motor set to lowest values, this should be mode quad starts up in
 	{
 		motorPower[0] = MIN_POWER;
@@ -102,8 +83,7 @@ void FlightControllerTwo::calculateMotorPower()
 		else if(throttle > MAX_POWER) throttle = MAX_POWER;
 		*/
 		
-		double tempUntilIGetMinhsCode[] = {0,0,0}; //will be fixed when minh gets his shit together
-		PID.updateFlatPID(Orientation.currentOrientation, tempUntilIGetMinhsCode);
+		PID.updateFlatPID(Orientation.currentOrientation, Orientation.currentGyroRates);
 		int throttle = Receiver.channelWidth[RECEIVER_THROTTLE];
 		
 		

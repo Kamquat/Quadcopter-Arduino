@@ -22,42 +22,44 @@ ACCEL_RESOLUTION == 3 => [.0286 - .0345]
 #include "math.h"
 
 double Accel_to_G(double,int);
+double Gyro_to_degree(double);
 int c[3][2] = { {-126,133},		//x min and max calibration measurements
 				{-128,130},		//y
 				{-140,115} };	//z
 				
 void OrientationTwo::setupOrientation()
 {
-		previousTime = 0;
-		roll = 0;
-		pitch = 0;
-		thrust = 0;
-		
+
+	//execute Minh's setup
+	setupAngularPosition();
 }
-void OrientationTwo::updateOrientation()
+void OrientationTwo::updateOrientation(int dt)
 {
-	int currentTime = micros();
-	if(currentTime - previousTime > ORIENT_PERIOD)
-	{
-		previousTime = currentTime;
-		
-		gx = Accel_to_G(IMUAccess.currentAccelValues[0],0);				//computes gravitational force in x directions
-		gy = Accel_to_G(IMUAccess.currentAccelValues[1],1);				//computes gravitational force in y directions
-		gz = -1.0*Accel_to_G(IMUAccess.currentAccelValues[2],2);		//gravitational force in z directions. -1 due to mounted position
-		
-		roll = atan2(gy,gz);											//converts g-force into radians(roll)
-		pitch = atan2(-gx,(sqrt((gy)*(gy) + (gz)*(gz))));				//converts g-force into radians(pitch)
-		thrust = sqrt((gx)*(gx) + (gy)*(gy) + (gz)*(gz));				//magnitude of all forces (if stationary, should = 1)
+	double gx = Accel_to_G(IMUAccess.currentAccelValues[0],0);				//computes gravitational force in x directions
+	double gy = Accel_to_G(IMUAccess.currentAccelValues[1],1);				//computes gravitational force in y directions
+	double gz = -1.0*Accel_to_G(IMUAccess.currentAccelValues[2],2);		//gravitational force in z directions. -1 due to mounted position
+	
+	double roll = atan2(gy,gz);											//converts g-force into radians(roll)
+	double pitch = atan2(-gx,(sqrt((gy)*(gy) + (gz)*(gz))));				//converts g-force into radians(pitch)
+	double thrust = sqrt((gx)*(gx) + (gy)*(gy) + (gz)*(gz));				//magnitude of all forces (if stationary, should = 1)
 
-		roll *= 180.00;   pitch *= 180.00;   //zAngle *= 180.00; 		converts radians into degrees
-		roll /= 3.141592; pitch /= 3.141592; //zAngle /= 3.141592;		converts radians into degrees
-		
-		currentOrientation[0] = roll;
-		currentOrientation[1] = pitch;
-		currentOrientation[2] = thrust;
-	}
+	roll *= 180.00;   pitch *= 180.00;   //zAngle *= 180.00; 		converts radians into degrees
+	roll /= 3.141592; pitch /= 3.141592; //zAngle /= 3.141592;		converts radians into degrees
+	
+	updateAngularPosition(dt);
+	
+	//These lines are a complementary filter
+
+	//roll
+	currentOrientation[0] = (currentOrientation[0] + axisChange[0])*COMPLEMENT_CONST;
+	currentOrientation[0] -= roll*(1.-COMPLEMENT_CONST);
+	
+	//pitch
+	currentOrientation[1] = (currentOrientation[1] + axisChange[1]) *COMPLEMENT_CONST;
+	currentOrientation[1] -= pitch*(1.-COMPLEMENT_CONST);
+	
+	currentOrientation[2] = thrust;
 }
-
 double Accel_to_G(double Accel_Value,int axis)					
 	{	
 
@@ -95,3 +97,34 @@ double Accel_to_G(double Accel_Value,int axis)
 		return G;									//returns value in gravitational force
 		
 	}
+void OrientationTwo::setupAngularPosition()
+{
+	double X_Change = 0.0; //initial rate at t = 0
+	double y_Change = 0.0;
+	double Z_Change = 0.0;
+}
+void OrientationTwo::updateAngularPosition(int dt)
+{
+
+	double X_Rate = currentGyroRates[0] = Gyro_to_degree(IMUAccess.currentGyroValues[0]);
+	double Y_Rate = currentGyroRates[1] = Gyro_to_degree(IMUAccess.currentGyroValues[1]);
+	double Z_Rate = currentGyroRates[2] = Gyro_to_degree(IMUAccess.currentGyroValues[2]);
+	
+	
+	
+	//to be used to help estimate change, will only be used in line directly above
+	//may need to change X,Y,Z order depending on IMU
+	//devide by a million becuase dt is in microseconds
+	axisChange = {X_Rate*dt / 1000000., Y_Rate*dt / 1000000., Z_Rate*dt / 1000000.};
+
+	X_angle += axisChange[0];
+	Y_angle += axisChange[1];
+	Z_angle += axisChange[2];
+}
+double Gyro_to_degree(double data_raw)
+{
+	double Change = 0.0;
+	double Sensitivity = 0.00875;
+	Change = data_raw*Sensitivity;
+	return Change;
+}

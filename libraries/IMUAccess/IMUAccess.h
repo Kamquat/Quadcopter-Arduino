@@ -45,7 +45,8 @@
 
 
 
-#define ACCEL_LPF				95
+#define ACCEL_LPF_VALUE			.95
+#define ACCEL_HPF_VALUE			.9
 
 
 //bool public setupHMC5883L();
@@ -73,10 +74,13 @@ class IMUAccessTwo
 		void getBarometerData();
 		bool readIMU(int,int,int,byte[]);
 		bool writeIMU(int,int, int);
+		int incomingAccelValues[3];
 		
 		int accelMicros,gyroMicros,compassMicros;
 		int accelInterval, gyroInterval, compassInterval;
 		int gyroOffsets[3];
+		
+		int previousAccelValues[3];
 		//int retrieveValue(int address, int registerAddress);
 	
 };
