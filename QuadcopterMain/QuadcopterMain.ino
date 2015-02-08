@@ -1,3 +1,4 @@
+
 /*NOTE: This code is for the Arduino Due board, it uses a 
 modified analogWrite frequency in the
 Program Files (x86)\Arduino\hardware\arduino\sam\variants\arduino_due_x\variant.h
@@ -13,12 +14,14 @@ reading the input. It does not seem to work for all pins, we use 6-9 for the mot
 #include <Config.h>
 #include <Receiver.h>
 #include <Orientation.h>
+#include <AngularPosition.h>
 #include <FlightController.h>
 #include <PID.h>
 
 
 
 OrientationTwo Orientation;
+AngularPositionTwo AngularPosition;
 IMUAccessTwo IMUAccess;
 ReceiverTwo Receiver;
 FlightControllerTwo FlightController;
@@ -38,6 +41,7 @@ void setup()
   Receiver.setupReceiverPins();
   FlightController.setupMotors();
   Orientation.setupOrientation();
+  AngularPosition.setupAngularPosition();
   PID.setupPID();
   
   if (DEBUG == true) 
@@ -52,7 +56,9 @@ void loop()
   //Reciever data collected automatically, see Receiver.cpp
   IMUAccess.updateIMUValues();
   Orientation.updateOrientation();
+  AngularPosition.updateAngularPosition();
   FlightController.flightControl();
+  
   
   
   
@@ -104,6 +110,15 @@ void debugSerial()
 	Serial.print("Pitch: "); Serial.print(Orientation.pitch);
 	Serial.print("\t");
 	Serial.print("Thrust: "); Serial.print(Orientation.thrust);
+	Serial.print("\n");
+  
+        Serial.print("\n\n\n");
+        Serial.print("Angle from Gyro:\n");
+	Serial.print("X_Angle: "); Serial.print(AngularPosition.X_angle);
+	Serial.print("\t");
+	Serial.print("y_Angle: "); Serial.print(AngularPosition.Y_angle);
+	Serial.print("\t");
+	Serial.print("Z_Angle: "); Serial.print(AngularPosition.Z_angle);
 	Serial.print("\n");
         
         
