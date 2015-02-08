@@ -43,6 +43,14 @@
 		attachInterrupt(RECEIVER_PIN_8,receiverChange8,CHANGE);
 		
 	}
+	void ReceiverTwo::checkInputs()
+	{
+		for(int i =0; i < 8; i++)
+		{
+			if(channelWidth[i] < 1000) channelWidth[i] = 1000;
+			if(channelWidth[i] > 2000) channelWidth[i] = 2000;
+		}
+	}
 	void receiverChange1()
 	{
 		if(digitalRead(RECEIVER_PIN_1) == HIGH)

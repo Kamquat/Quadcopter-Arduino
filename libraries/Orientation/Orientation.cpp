@@ -111,6 +111,10 @@ void OrientationTwo::updateAngularPosition(int dt)
 	double Z_Rate = currentGyroRates[2] = Gyro_to_degree(IMUAccess.currentGyroValues[2]);
 	
 	
+	/*
+	Serial.print("X_RATE = "); Serial.print(X_Rate); Serial.print("\n");
+	Serial.print("Y_RATE = "); Serial.print(X_Rate); Serial.print("\n");
+	Serial.print("Z_RATE = "); Serial.print(X_Rate); Serial.print("\n");*/
 	
 	//to be used to help estimate change, will only be used in line directly above
 	//may need to change X,Y,Z order depending on IMU

@@ -11,7 +11,7 @@ bool IMUAccessTwo::setupDevices(void)
 	accelMicros = 0, gyroMicros = 0, compassMicros = 0;
 	accelInterval = 0, gyroInterval = 0, compassInterval = 0;
 	gyroOffsets[3] = {0};
-	previousAccelValues = {0,0,0};
+	gyroAverageCounter = 0;
 	//currentAccelValues[3] = {0};
 	//currentCompassValues[3] = {0};
 	//currentGyroValues[3] = {0};
@@ -75,6 +75,7 @@ void IMUAccessTwo::updateIMUValues(void)
 			{
 				//this is a high pass filter
 				currentAccelValues[i] = currentAccelValues[i] * ACCEL_HPF_VALUE + (1.-ACCEL_HPF_VALUE)*incomingAccelValues[i];
+				
 			}
 		
 		
@@ -84,6 +85,22 @@ void IMUAccessTwo::updateIMUValues(void)
 	{
 		bool goodGyroRead = getGyroData();
 		if(goodGyroRead == true) {gyroMicros = micros();}
+		
+		double average = 0;
+		for(int i = 0; i < 3; i++)
+		{
+			previousGyroValues[i][gyroAverageCounter] = incomingGyroValues[i];
+			for(int j = 0; j < NUMBER_PREV_VALUES; j++)
+			{
+				average += previousGyroValues[i][gyroAverageCounter];
+			}
+			average /= NUMBER_PREV_VALUES;
+			currentGyroValues[i] = average;
+		}
+		
+		gyroAverageCounter++;
+		if(gyroAverageCounter >= NUMBER_PREV_VALUES) {gyroAverageCounter = 0;}
+			
 	}
 	if(micros()-compassMicros > compassInterval)  //Accesses Compass at frequency from Config
 	{	
@@ -275,15 +292,15 @@ bool IMUAccessTwo::getGyroData()
 	
 	if(goodRead == true)
 	{
-		currentGyroValues[0] = incomingValues[1]<<8 | incomingValues[0];
-		currentGyroValues[1] = incomingValues[3]<<8 | incomingValues[2];
-		currentGyroValues[2] = incomingValues[5]<<8 | incomingValues[4];
+		incomingGyroValues[0] = incomingValues[1]<<8 | incomingValues[0];
+		incomingGyroValues[1] = incomingValues[3]<<8 | incomingValues[2];
+		incomingGyroValues[2] = incomingValues[5]<<8 | incomingValues[4];
 	
 	
 		int temp;
 		for(int i = 0; i < 3; i++)
 		{
-			temp = currentGyroValues[i];
+			temp = incomingGyroValues[i];
 			if(temp > 32767)   //this means the value is negative, must fix
 			{
 				int j = 31;
@@ -305,13 +322,13 @@ bool IMUAccessTwo::getGyroData()
 					}
 				}
 				temp += 1;
-				currentGyroValues[i] = -temp;		
+				incomingGyroValues[i] = -temp;		
 			}
 		}
 		//Not sure this is correct
 		for(int i = 0; i < 3; i++)
 		{
-			currentGyroValues[i] = currentGyroValues[i] - gyroOffsets[i];
+			incomingGyroValues[i] = incomingGyroValues[i] - gyroOffsets[i];
 		}
 	}
 	return goodRead;

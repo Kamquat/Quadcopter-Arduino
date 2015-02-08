@@ -18,10 +18,10 @@ repository to Documents -> Arduino. Replace all files after doing this.
 
 In Progress:
 	[X]Reading from IMU
-	[]Calculating Orientation from IMU
+	[X]Calculating Orientation from IMU
 
 TODO:
-	[]Send motor outputs
+	[X]Send motor outputs
 	[]Convert difference between orientation/desired orientation to motor outputs
 	
 --------[]Stable Flight

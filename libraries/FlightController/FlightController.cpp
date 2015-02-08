@@ -46,6 +46,7 @@ void FlightControllerTwo::flightControl()
 	if(dt > RECALCULATE_MOTOR_PERIOD)
 	{
 		previousPulseTime = micros();
+		Receiver.checkInputs();
 		Orientation.updateOrientation(dt);
 		calculateMotorPower();
 	}

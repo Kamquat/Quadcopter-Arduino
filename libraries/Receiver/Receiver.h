@@ -25,6 +25,7 @@ class ReceiverTwo
 		void setupReceiverPins();
 		volatile int channelWidth[8];
 		volatile int highTime[8];
+		void checkInputs();
 
 };
 extern ReceiverTwo Receiver;

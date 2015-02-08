@@ -13,14 +13,12 @@ reading the input. It does not seem to work for all pins, we use 6-9 for the mot
 #include <Config.h>
 #include <Receiver.h>
 #include <Orientation.h>
-#include <AngularPosition.h>
 #include <FlightController.h>
 #include <PID.h>
 
 
 
 OrientationTwo Orientation;
-AngularPositionTwo AngularPosition;
 IMUAccessTwo IMUAccess;
 ReceiverTwo Receiver;
 FlightControllerTwo FlightController;
@@ -40,7 +38,6 @@ void setup()
   Receiver.setupReceiverPins();
   FlightController.setupMotors();
   Orientation.setupOrientation();
-  AngularPosition.setupAngularPosition();
   PID.setupPID();
   
   if (DEBUG == true) 
@@ -54,8 +51,6 @@ void loop()
 {
   //Reciever data collected automatically, see Receiver.cpp
   IMUAccess.updateIMUValues();
-  Orientation.updateOrientation();
-  AngularPosition.updateAngularPosition();
   FlightController.flightControl();
   
   
@@ -74,8 +69,8 @@ void debugSerial()
       int debugPeriod = 2000000;
       if(micros()-debugPrevTime > debugPeriod)
       {
-          Serial.print("IMU Values:\n");
-          Serial.print("\nAccelerometer Values:");
+        Serial.print("IMU Values:\n");
+        Serial.print("\nAccelerometer Values:");
   	Serial.print("\nX = "); Serial.print(IMUAccess.currentAccelValues[0]);
   	Serial.print("\nY = "); Serial.print(IMUAccess.currentAccelValues[1]);
   	Serial.print("\nZ = "); Serial.print(IMUAccess.currentAccelValues[2]);
@@ -104,20 +99,20 @@ void debugSerial()
         }
         Serial.print("\n\n\n");
         Serial.print("Orientation Values:\n");
-	Serial.print("Roll: "); Serial.print(Orientation.roll);
+	Serial.print("Roll: "); Serial.print(Orientation.currentOrientation[0]);
 	Serial.print("\t");
-	Serial.print("Pitch: "); Serial.print(Orientation.pitch);
+	Serial.print("Pitch: "); Serial.print(Orientation.currentOrientation[1]);
 	Serial.print("\t");
-	Serial.print("Thrust: "); Serial.print(Orientation.thrust);
+	Serial.print("Thrust: "); Serial.print(Orientation.currentOrientation[2]);
 	Serial.print("\n");
   
         Serial.print("\n\n\n");
         Serial.print("Angle from Gyro:\n");
-	Serial.print("X_Angle: "); Serial.print(AngularPosition.X_angle);
+	Serial.print("X_Angle: "); Serial.print(Orientation.X_angle);
 	Serial.print("\t");
-	Serial.print("y_Angle: "); Serial.print(AngularPosition.Y_angle);
+	Serial.print("y_Angle: "); Serial.print(Orientation.Y_angle);
 	Serial.print("\t");
-	Serial.print("Z_Angle: "); Serial.print(AngularPosition.Z_angle);
+	Serial.print("Z_Angle: "); Serial.print(Orientation.Z_angle);
 	Serial.print("\n");
         
         
@@ -142,22 +137,3 @@ void debugTimingSerial()
     totalHz++;
   }  
 }
-  /*   
-  static int maxCount = 100;
-  static int iterationCount = 0;
-  static int myTime = 0;
-  static int previousMicros = 0;
-  iterationCount++;
-  if (iterationCount == maxCount)
-  {
-    myTime = micros() - previousMicros;
-    //myTime /= 1000000;
-    Serial.print(maxCount);
-    Serial.print(" rounds took: ");
-    Serial.print(myTime);
-    Serial.print(" micro-seconds \n");
-  
-    iterationCount = 0;
-    delay(5000);
-    previousMicros = micros();
-  }*/
