@@ -16,12 +16,14 @@ class FlightControllerTwo
 	public:
 		void setupMotors();
 		void flightControl();
+		int flightMode;
+		int motorPower[4];
 		
 	private:
 		int previousPulseTime;
 		void updateMotorPower(void);
 		void calculateMotorPower(void);
-		int motorPower[4];
+		void checkMotorInputs(void);
 		
 };
 extern FlightControllerTwo FlightController;

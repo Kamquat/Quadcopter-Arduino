@@ -20,31 +20,49 @@ ACCEL_RESOLUTION == 3 => [.0286 - .0345]
 #include "Orientation.h"
 #include "IMUAccess.h"
 #include "math.h"
+#include "Kalman.h"
 
 double Accel_to_G(double,int);
 double Gyro_to_degree(double);
+/*
+Sam flipped X-Y axis and +-Z measurements
 int c[3][2] = { {-126,133},		//x min and max calibration measurements
 				{-128,130},		//y
 				{-140,115} };	//z
+				*/
+int c[3][2] = { {-128,130},		//x min and max calibration measurements
+				{-126,133},		//y
+				{115,-135} };	//z				
 				
 void OrientationTwo::setupOrientation()
 {
 
 	//execute Minh's setup
-	setupAngularPosition();
+		setupAngularPosition();
+
 }
 void OrientationTwo::updateOrientation(int dt)
 {
+	//NOTE: XYZ are not the same on the IMU, these values are adjusted in the IMUAccess code
 	double gx = Accel_to_G(IMUAccess.currentAccelValues[0],0);				//computes gravitational force in x directions
 	double gy = Accel_to_G(IMUAccess.currentAccelValues[1],1);				//computes gravitational force in y directions
-	double gz = -1.0*Accel_to_G(IMUAccess.currentAccelValues[2],2);		//gravitational force in z directions. -1 due to mounted position
+	double gz = Accel_to_G(IMUAccess.currentAccelValues[2],2);		        //gravitational force in z directions. 
 	
 	double roll = atan2(gy,gz);											//converts g-force into radians(roll)
+	
+	
+	
+	
+	
 	double pitch = atan2(-gx,(sqrt((gy)*(gy) + (gz)*(gz))));				//converts g-force into radians(pitch)
 	double thrust = sqrt((gx)*(gx) + (gy)*(gy) + (gz)*(gz));				//magnitude of all forces (if stationary, should = 1)
 
 	roll *= 180.00;   pitch *= 180.00;   //zAngle *= 180.00; 		converts radians into degrees
 	roll /= 3.141592; pitch /= 3.141592; //zAngle /= 3.141592;		converts radians into degrees
+	
+	if(roll > 0) roll -= 180;
+	if(roll < 0) roll += 180;
+	
 	
 	updateAngularPosition(dt);
 	
@@ -52,11 +70,11 @@ void OrientationTwo::updateOrientation(int dt)
 
 	//roll
 	currentOrientation[0] = (currentOrientation[0] + axisChange[0])*COMPLEMENT_CONST;
-	currentOrientation[0] -= roll*(1.-COMPLEMENT_CONST);
+	currentOrientation[0] += roll*(1.-COMPLEMENT_CONST);
 	
 	//pitch
 	currentOrientation[1] = (currentOrientation[1] + axisChange[1]) *COMPLEMENT_CONST;
-	currentOrientation[1] -= pitch*(1.-COMPLEMENT_CONST);
+	currentOrientation[1] += pitch*(1.-COMPLEMENT_CONST);
 	
 	currentOrientation[2] = thrust;
 }
@@ -105,7 +123,8 @@ void OrientationTwo::setupAngularPosition()
 }
 void OrientationTwo::updateAngularPosition(int dt)
 {
-
+	//NOTE: XYZ are not the same on the IMU, these values are adjusted in the IMUAccess code
+	//no extra adjustment needed here
 	double X_Rate = currentGyroRates[0] = Gyro_to_degree(IMUAccess.currentGyroValues[0]);
 	double Y_Rate = currentGyroRates[1] = Gyro_to_degree(IMUAccess.currentGyroValues[1]);
 	double Z_Rate = currentGyroRates[2] = Gyro_to_degree(IMUAccess.currentGyroValues[2]);
@@ -131,4 +150,20 @@ double Gyro_to_degree(double data_raw)
 	double Sensitivity = 0.00875;
 	Change = data_raw*Sensitivity;
 	return Change;
+}
+void OrientationTwo::updateKalman()
+{
+	if(prevKalmanCalculation == 0)
+	{
+		prevKalmanCalculation = micros();
+	}
+	float dt = micros() - prevKalmanCalculation;
+	dt /= 1000000;
+}
+void OrientationTwo::initializeKalman()
+{
+	pitchKalman.initializeKalman(PITCH_q1,PITCH_q2,PITCH_q3,PITCH_r1,PITCH_r2);
+	rollKalman.initializeKalman(ROLL_q1,ROLL_q2,ROLL_q3,ROLL_r1,ROLL_r2);
+	
+	prevKalmanCalculation = 0;
 }

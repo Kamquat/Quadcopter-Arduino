@@ -65,6 +65,8 @@ class IMUAccessTwo
 		int currentGyroValues[3];
 		int currentCompassValues[3];
 		void testStuff();
+		bool clearI2CBus(void);
+		void averageGyroValues(void);
 	private:
 		bool setupADXL345();
 		bool setupL3G4200D();

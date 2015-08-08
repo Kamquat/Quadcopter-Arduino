@@ -47,7 +47,6 @@
 	{
 		for(int i =0; i < 8; i++)
 		{
-			if(channelWidth[i] < 1000) channelWidth[i] = 1000;
 			if(channelWidth[i] > 2000) channelWidth[i] = 2000;
 		}
 	}
@@ -59,7 +58,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[0] = micros()-Receiver.highTime[0];
+		int time = micros();
+		Receiver.channelWidth[0] = time - Receiver.highTime[0];
+		Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange2()
@@ -70,7 +71,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[1] = micros()-Receiver.highTime[1];
+		int time = micros();
+		Receiver.channelWidth[1] = time - Receiver.highTime[1];
+		//Receiver.lastUpdated = time;
 		
 	  }
 	}
@@ -82,7 +85,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[2] = micros()-Receiver.highTime[2];
+		int time = micros();
+		Receiver.channelWidth[2] = time - Receiver.highTime[2];
+		//Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange4()
@@ -93,7 +98,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[3] = micros()-Receiver.highTime[3];
+		int time = micros();
+		Receiver.channelWidth[3] = time - Receiver.highTime[3];
+		//Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange5()
@@ -104,7 +111,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[4] = micros()-Receiver.highTime[4];
+		int time = micros();
+		Receiver.channelWidth[4] = time - Receiver.highTime[4];
+		//Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange6()
@@ -115,7 +124,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[5] = micros()-Receiver.highTime[5];
+		int time = micros();
+		Receiver.channelWidth[5] = time - Receiver.highTime[5];
+		//Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange7()
@@ -126,7 +137,9 @@
 	  }
 	  else
 	  {
-		Receiver.channelWidth[6] = micros()-Receiver.highTime[6];
+		int time = micros();
+		Receiver.channelWidth[6] = time - Receiver.highTime[6];
+		//Receiver.lastUpdated = time;
 	  }
 	}
 	void receiverChange8()
@@ -137,7 +150,9 @@
 		}
 		else
 		{
-			Receiver.channelWidth[7] = micros()-Receiver.highTime[7];
+			int time = micros();
+			Receiver.channelWidth[7] = time - Receiver.highTime[7];
+			//Receiver.lastUpdated = time;
 		}
 	}
 

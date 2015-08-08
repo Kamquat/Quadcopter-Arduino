@@ -1,6 +1,7 @@
 #ifndef Orientation_h
 #define Orientation_h
 #include "Arduino.h"
+#include "Kalman.h"
 
 #define COMPLEMENT_CONST .95
 
@@ -14,6 +15,12 @@ class OrientationTwo
 		double desiredOrientation[3];
 		
 		double currentGyroRates[3];
+		
+		void updateKalman();
+		void initializeKalman();
+		
+		KalmanData pitchKalman;
+		KalmanData rollKalman;
 		
 		
 		
@@ -33,7 +40,7 @@ class OrientationTwo
 		
 		private:
 		int previousTime;
-		
+		long prevKalmanCalculation;
 		//minh's
 		int prevTime;
 	

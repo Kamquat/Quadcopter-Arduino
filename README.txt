@@ -2,6 +2,9 @@ NOTE: The updated code will require a change in the following location:
 Program Files (x86)\Arduino\hardware\arduino\sam\variants\arduino_due_x\variant.h
 change PWM_FREQUENCY from 1000 to 500, otherwise the motors will not output good signals
 
+NOTE:
+The motor on the marked arm is being watched, may be cause of ESC burnouts.
+
 
 
 
@@ -60,7 +63,9 @@ NOTES:
 		and output 11V-15V. DO NOT CONNECT TO ARDUINO OR OTHER DEVICES.
 
 --------------------------------------------------------------------------------------
-		DO NOT RUN ESC'S AT LOW POWER
+		DO NOT RUN ESC'S AT LOW POWER (1004uS for example)
+
+		Receiver Wires
 		top - signal
 		middle - power
 		bottom - ground

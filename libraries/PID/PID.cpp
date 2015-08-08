@@ -77,6 +77,19 @@ void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRa
 	pitchAdjustment *= 	RATE_TO_POWER;
 	rollAdjustment *=  	RATE_TO_POWER;
 	yawAdjustment *=   	RATE_TO_POWER;
+	
+	PIDLimits();
+}
+void PIDTwo::PIDLimits()
+{
+	if     (pitchAdjustment > MAX_ADJUSTMENT) pitchAdjustment = MAX_ADJUSTMENT;
+	else if(pitchAdjustment < MIN_ADJUSTMENT) pitchAdjustment = MIN_ADJUSTMENT;
+	
+	if	   (rollAdjustment > MAX_ADJUSTMENT) rollAdjustment = MAX_ADJUSTMENT;
+	else if(rollAdjustment < MIN_ADJUSTMENT) rollAdjustment = MIN_ADJUSTMENT;
+	
+	if     (yawAdjustment > MAX_ADJUSTMENT) yawAdjustment = MAX_ADJUSTMENT;
+	else if(yawAdjustment < MIN_ADJUSTMENT) yawAdjustment = MIN_ADJUSTMENT;
 }
 void PIDTwo::updateStablePID(double currentOrientation[], double desiredOrientation[], double currentRotationRates[])
 {

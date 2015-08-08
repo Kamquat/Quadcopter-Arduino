@@ -4,7 +4,7 @@ modified analogWrite frequency in the
 Program Files (x86)\Arduino\hardware\arduino\sam\variants\arduino_due_x\variant.h
 file
 Change PWM_FREQUENCY from 1000 to 500. This change will update the motors at 500Hz,
-be sure to limit the maximum thrust below full powerex: 1950 and not 2000, or the esc may have trouble
+be sure to limit the maximum thrust below full power, ex: 1950 and not 2000, or the esc may have trouble
 reading the input. It does not seem to work for all pins, we use 6-9 for the motors*/
 
 
@@ -15,6 +15,7 @@ reading the input. It does not seem to work for all pins, we use 6-9 for the mot
 #include <Orientation.h>
 #include <FlightController.h>
 #include <PID.h>
+#include <Kalman.h>
 
 
 
@@ -30,22 +31,81 @@ int HzMicros = 0;
 
 void setup()
 {
-  Serial.begin(9600);
-  Wire.begin();
-  debugPrevTime= 0;
+  #if DEBUG || DEBUG_TIMING
+    Serial.begin(9600);
+    Serial.println("Begin Setup");
+  #endif
   
-  IMUAccess.setupDevices();
-  Receiver.setupReceiverPins();
-  FlightController.setupMotors();
-  Orientation.setupOrientation();
-  PID.setupPID();
   
-  if (DEBUG == true) 
-  {
-    Serial.print("setup Complete\n");
-    HzMicros = micros();
+  
+    #if DEBUG
+      Serial.println("\tBegin Wire Setup");
+    #endif
     
-  }
+    IMUAccess.clearI2CBus();
+    //This clears the bus, handles issues with I2C hangs on startup
+    
+    Wire.begin();
+    
+    debugPrevTime= 0;
+    
+    #if DEBUG
+      Serial.println("\tBegin IMU Setup");
+    #endif
+    
+    IMUAccess.setupDevices();
+    
+    #if DEBUG
+      Serial.println("\tBegin Receiver Setup");
+    #endif
+    
+    Receiver.setupReceiverPins();
+    
+    #if DEBUG
+      Serial.println("\tBegin FlightController Setup");
+    #endif
+    
+    FlightController.setupMotors();
+    
+    #if DEBUG
+      Serial.println("\tBegin Orientation Setup");
+    #endif
+    
+    Orientation.setupOrientation();
+    
+    #if DEBUG
+      Serial.println("\tBegin PID Setup");
+    #endif
+    
+    PID.setupPID();
+    
+    #if DEBUG
+      Serial.println("\tEnd PID Setup");
+    #endif
+  
+  
+  //this is an arming sequence to ensure quad waits before starting motors
+  
+  #if ARMED
+    #if DEBUG
+      Serial.println("Awaiting Arming Sequence");
+    #endif
+    while(Receiver.channelWidth[RECEIVER_MODE] <1700);
+    delay(500);
+    while(Receiver.channelWidth[RECEIVER_MODE] >1200);
+    delay(500);
+    while(Receiver.channelWidth[RECEIVER_THROTTLE] > 1100);
+    delay(500);
+    
+    #if DEBUG
+      Serial.println("Arming Sequence Complete");
+    #endif
+  #endif
+  
+  #if DEBUG
+    Serial.println("End Setup");
+    HzMicros = micros();
+  #endif
 }
 void loop()
 {
@@ -58,70 +118,88 @@ void loop()
   
   
   
-  if(DEBUG==true)          
-  {
+  #if DEBUG
     debugSerial();
-  }
-  if(DEBUG_TIMING == true) {debugTimingSerial();}
+  #endif
+  #if DEBUG_TIMING
+    debugTimingSerial();
+  #endif
 }
+#if DEBUG
 void debugSerial()
 {
       int debugPeriod = 2000000;
       if(micros()-debugPrevTime > debugPeriod)
       {
-        Serial.print("IMU Values:\n");
-        Serial.print("\nAccelerometer Values:");
-  	Serial.print("\nX = "); Serial.print(IMUAccess.currentAccelValues[0]);
-  	Serial.print("\nY = "); Serial.print(IMUAccess.currentAccelValues[1]);
-  	Serial.print("\nZ = "); Serial.print(IMUAccess.currentAccelValues[2]);
+        Serial.println("\n\n");
+        Serial.println("---------------------------------------------------");
+        Serial.println("IMU Values:--------------------------------");
+        Serial.println("Accelerometer Values:");
+  	Serial.print("X = "); Serial.println(IMUAccess.currentAccelValues[0]);
+  	Serial.print("Y = "); Serial.println(IMUAccess.currentAccelValues[1]);
+  	Serial.print("Z = "); Serial.println(IMUAccess.currentAccelValues[2]);
   	
   		
-  	Serial.print("\nGyro Values:");
-  	Serial.print("\nX = "); Serial.print(IMUAccess.currentGyroValues[0]);
-  	Serial.print("\nY = "); Serial.print(IMUAccess.currentGyroValues[1]);
-  	Serial.print("\nZ = "); Serial.print(IMUAccess.currentGyroValues[2]);
+  	Serial.println("Gyro Values:");
+  	Serial.print("X = "); Serial.println(IMUAccess.currentGyroValues[0]);
+  	Serial.print("Y = "); Serial.println(IMUAccess.currentGyroValues[1]);
+  	Serial.print("Z = "); Serial.println(IMUAccess.currentGyroValues[2]);
   	
   		
-  	Serial.print("\nCompass Values:");
-  	Serial.print("\nX = "); Serial.print(IMUAccess.currentCompassValues[0]);
-  	Serial.print("\nY = "); Serial.print(IMUAccess.currentCompassValues[1]);
-  	Serial.print("\nZ = "); Serial.print(IMUAccess.currentCompassValues[2]);
-        Serial.print("\n\n\n");
+  	Serial.println("\nCompass Values:");
+  	Serial.print("X = "); Serial.println(IMUAccess.currentCompassValues[0]);
+  	Serial.print("Y = "); Serial.println(IMUAccess.currentCompassValues[1]);
+  	Serial.print("Z = "); Serial.println(IMUAccess.currentCompassValues[2]);
+        Serial.println("\n");
       
-        Serial.print("Receiver Values : \n");
+        Serial.println("Receiver Values :---------------------");
         for(int i = 0; i < 8; i++)
         {
             Serial.print("Channel "); 
             Serial.print(i); 
             Serial.print(" = "); 
             Serial.print(Receiver.channelWidth[i]);
-            Serial.print("uS\n");
+            Serial.println("uS");
         }
-        Serial.print("\n\n\n");
-        Serial.print("Orientation Values:\n");
-	Serial.print("Roll: "); Serial.print(Orientation.currentOrientation[0]);
-	Serial.print("\t");
-	Serial.print("Pitch: "); Serial.print(Orientation.currentOrientation[1]);
-	Serial.print("\t");
-	Serial.print("Thrust: "); Serial.print(Orientation.currentOrientation[2]);
-	Serial.print("\n");
-  
-        Serial.print("\n\n\n");
-        Serial.print("Angle from Gyro:\n");
-	Serial.print("X_Angle: "); Serial.print(Orientation.X_angle);
-	Serial.print("\t");
-	Serial.print("y_Angle: "); Serial.print(Orientation.Y_angle);
-	Serial.print("\t");
-	Serial.print("Z_Angle: "); Serial.print(Orientation.Z_angle);
-	Serial.print("\n");
+        Serial.println("\n");
+        Serial.println("Motor Powers-------------------");
+        Serial.print("Receiver last updated: "); Serial.println(micros()-Receiver.lastUpdated);
+        Serial.print("Flight Mode          : "); Serial.println(FlightController.flightMode);
+        Serial.print("Front Left Motor     : ");Serial.println(FlightController.motorPower[0]);
+        Serial.print("Front Right Motor    : ");Serial.println(FlightController.motorPower[1]);
+        Serial.print("Back Left Motor      : ");Serial.println(FlightController.motorPower[2]);
+        Serial.print("Back Right Motor     : ");Serial.println(FlightController.motorPower[3]);
         
         
-        Serial.print("\n\n\n");
+        
+        
+        
+       
+        Serial.println("\n");
+        Serial.println("Orientation Values:----------------------");
+	Serial.print("\tRoll: "); Serial.println(Orientation.currentOrientation[0]);
+	Serial.print("\tPitch: "); Serial.println(Orientation.currentOrientation[1]);
+	Serial.print("\tThrust: "); Serial.println(Orientation.currentOrientation[2]);
+	Serial.println("");
+
+
+        Serial.println("Gyro Values:--------------------");
+	Serial.print("\tRoll: "); Serial.println(Orientation.currentGyroRates[0]);
+	Serial.print("\tPitch: "); Serial.println(Orientation.currentGyroRates[1]);
+	Serial.print("\tYaw: "); Serial.println(Orientation.currentGyroRates[2]);
+        Serial.println("");
+        
+        Serial.println("Angle from Gyro:---------------------");
+	Serial.print("\tX_Angle: "); Serial.println(Orientation.X_angle);
+	Serial.print("\ty_Angle: "); Serial.println(Orientation.Y_angle);
+	Serial.print("\tZ_Angle: "); Serial.println(Orientation.Z_angle);
         //delay(2000);
         debugPrevTime = micros();
       }
       
 }
+#endif
+#if DEBUG_TIMING
 void debugTimingSerial()
 {
   {
@@ -137,3 +215,4 @@ void debugTimingSerial()
     totalHz++;
   }  
 }
+#endif

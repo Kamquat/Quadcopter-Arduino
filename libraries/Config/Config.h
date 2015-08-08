@@ -2,24 +2,43 @@
 #define Config_h
 
 
-#define ARMED false
+#define ARMED true
 #define DEBUG true         //If set to true, will do debug work like Serial.print
 #define DEBUG_TIMING false  //If set to true, include timing code
 
 //PIN VALUES===========================================================
-#define RECEIVER_PIN_1 	22
-#define RECEIVER_PIN_2	23
-#define RECEIVER_PIN_3	24
-#define RECEIVER_PIN_4	25
-#define RECEIVER_PIN_5	26
-#define RECEIVER_PIN_6	27
-#define RECEIVER_PIN_7	28
-#define RECEIVER_PIN_8	29
+#define RECEIVER_PIN_1 	31
+#define RECEIVER_PIN_2	33
+#define RECEIVER_PIN_3	35
+#define RECEIVER_PIN_4	37
+#define RECEIVER_PIN_5	39
+#define RECEIVER_PIN_6	41
+#define RECEIVER_PIN_7	43
+#define RECEIVER_PIN_8	45
 
-#define FRONT_MOTOR_PIN 6
-#define BACK_MOTOR_PIN 7
-#define LEFT_MOTOR_PIN 8
-#define RIGHT_MOTOR_PIN 9
+
+/*
+The following arm configuration assumes the two red legs make up the front end
+the two white legs make up the back end
+
+X - Red
++ - White
+
+top view
+frontLeft    FrontRight
+X           X
+
+
+
+-           -
+BackLeft     BackRight
+
+Recall motors should be on these pins due to differences in analogWrite frequencies
+*/
+#define FRONT_LEFT_MOTOR_PIN 6
+#define FRONT_RIGHT_MOTOR_PIN 7
+#define BACK_LEFT_MOTOR_PIN 8
+#define BACK_RIGHT_MOTOR_PIN 9
 
 //RECEIVER VALUES==============================================================
 #define RECEIVER_ROLL		0
@@ -77,6 +96,20 @@
 #define P_YAW_RATE			1
 #define I_YAW_RATE			0
 #define D_YAW_RATE			0
+
+
+//---KALMAN FILTER VALUES
+#define PITCH_q1 			1
+#define PITCH_q2 			1
+#define PITCH_q3 			.2
+#define PITCH_r1 			2
+#define PITCH_r2			1
+
+#define ROLL_q1 			1
+#define ROLL_q2 			1
+#define ROLL_q3 			.2
+#define ROLL_r1 			2
+#define ROLL_r2				2
 
 
 #endif
