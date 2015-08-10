@@ -16,7 +16,7 @@
 class PIDTwo
 {
 	public:
-	void updateFlatPID(double[], double[]);
+	void updateFlatPID(double, double, double[]);
 	void updateStablePID(double[], double[], double[]);
 	void updateAcroPID(void);
 	void setupPID(void);
@@ -32,7 +32,7 @@ class PIDTwo
 	
 	private:
 	
-	void PIDLimits(void);
+	void CheckPIDLimits(void);
 	
 	
 	double pitchAngleCumError;

@@ -106,7 +106,18 @@ void IMUAccessTwo::updateIMUValues(void)
 		bool goodGyroRead = getGyroData();
 		if(goodGyroRead == true) {gyroMicros = micros();}
 		
-		
+
+		double average = 0;
+		for(int i = 0; i < 3; i++)
+		{
+			previousGyroValues[i][gyroAverageCounter] = incomingGyroValues[i];
+			for(int j = 0; j < NUMBER_PREV_VALUES; j++)
+			{
+				average += previousGyroValues[i][gyroAverageCounter];
+			}
+			average /= NUMBER_PREV_VALUES;
+			currentGyroValues[i] = average;
+		}
 		gyroAverageCounter++;
 		if(gyroAverageCounter >= NUMBER_PREV_VALUES) {gyroAverageCounter = 0;}
 			
@@ -161,7 +172,6 @@ bool IMUAccessTwo::setupADXL345(void)
 bool IMUAccessTwo::setupL3G4200D(void)
 {
 	//All while(Wire.available()); ensure wire is clear before beginning request
-	int samples = 2000;
 	
 	//15 turns device on, others adjust rate and bandwidth
 	int ctrlReg1Value = 15 + GYRO_FREQUENCY * 64 + GYRO_DATA_BANDWIDTH * 16;
@@ -198,7 +208,7 @@ bool IMUAccessTwo::setupL3G4200D(void)
 	//prepares offset values, will hopefully make gyro more reliable
 	int xSum = 0, ySum = 0, zSum = 0;
 	gyroMicros = micros();
-	for(int i = 0; i < samples;)
+	for(int i = 0; i < GYRO_INIT_SAMPLES;)
 	{
 		if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
 		{
@@ -211,17 +221,15 @@ bool IMUAccessTwo::setupL3G4200D(void)
 			}
 		}
 	}
-	gyroOffsets[0] = xSum / samples;
-	gyroOffsets[1] = ySum / samples;
-	gyroOffsets[2] = zSum / samples;
+	gyroOffsets[0] = xSum / GYRO_INIT_SAMPLES;
+	gyroOffsets[1] = ySum / GYRO_INIT_SAMPLES;
+	gyroOffsets[2] = zSum / GYRO_INIT_SAMPLES;
 	
 	#if DEBUG
-		Serial.print("Gyro Ready");
-		Serial.print("\n");
-		Serial.print("Gyro offsets:\nX= ");
-		Serial.print(gyroOffsets[0]); Serial.print("\nY= ");
-		Serial.print(gyroOffsets[1]); Serial.print("\nZ= ");
-		Serial.print(gyroOffsets[2]); Serial.print("\n");
+		Serial.println("Gyro Ready");
+		Serial.print("Gyro offsets:\nX= "); Serial.println(gyroOffsets[0]); 
+		Serial.print("Y= "); Serial.println(gyroOffsets[1]); 
+		Serial.print("Z= "); Serial.println(gyroOffsets[2]);
 	#endif
 	return true;
 }
@@ -299,11 +307,13 @@ bool IMUAccessTwo::getAccelData()
 			}
 		}
 		
-		//flips X-Y axis
+		//flips X-Y axis *-1 to Z axis
+		/*
 		temp = -incomingAccelValues[0];
 		incomingAccelValues[0] = incomingAccelValues[1];
 		incomingAccelValues[1] = temp;
 		incomingAccelValues[2] = -incomingAccelValues[2];
+		*/
 	}
 	return goodRead;
 }
@@ -348,12 +358,15 @@ bool IMUAccessTwo::getGyroData()
 				incomingGyroValues[i] = -temp;		
 			}
 		}
+		
 		//Flips X-Y axis, flips +-Z measurements
+		/*
 		temp = incomingGyroValues[0];
 		incomingGyroValues[0] = incomingGyroValues[1];
 		incomingGyroValues[1] = temp;
 		incomingGyroValues[2] = -incomingGyroValues[2];
-		//Not sure this is correct
+		*/
+		
 		for(int i = 0; i < 3; i++)
 		{
 			incomingGyroValues[i] = incomingGyroValues[i] - gyroOffsets[i];
@@ -407,10 +420,12 @@ bool IMUAccessTwo::getCompassData()
 		}
 		
 		//Flips X-Y axis, flips +-Z measurements
-		temp = currentGyroValues[0];
+		/*
+		temp = currentCompassValues[1];
 		currentCompassValues[0] = currentCompassValues[1];
 		currentCompassValues[1] = temp;
 		currentCompassValues[2] = -currentCompassValues[2];
+		*/
 	}
 	return goodRead;
 }

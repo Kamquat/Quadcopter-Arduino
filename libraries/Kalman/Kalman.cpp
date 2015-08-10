@@ -1,96 +1,93 @@
-/* code heavily derived from
-http://www.linushelgesson.se/2012/04/pitch-and-roll-estimating-kalman-filter-for-stabilizing-quadrocopters/
-Thank you for the detailed explanation and example code
-*/
+/* Copyright (C) 2012 Kristian Lauszus, TKJ Electronics. All rights reserved.
+
+ This software may be distributed and modified under the terms of the GNU
+ General Public License version 2 (GPL2) as published by the Free Software
+ Foundation and appearing in the file GPL2.TXT included in the packaging of
+ this file. Please note that GPL2 Section 2[b] requires that all works based
+ on this software must also be made publicly available under the terms of
+ the GPL2 ("Copyleft").
+
+ Contact information
+ -------------------
+
+ Kristian Lauszus, TKJ Electronics
+ Web      :  http://www.tkjelectronics.com
+ e-mail   :  kristianl@tkjelectronics.com
+ */
 
 #include "Kalman.h"
 
+Kalman::Kalman() {
+    /* We will set the variables like so, these can also be tuned by the user */
+    Q_angle = 0.001f;
+    Q_bias = 0.003f;
+    R_measure = 0.03f;
 
-void KalmanData::initializeKalman(float q1, float q2, float q3, float r1, float r2)
-{
-	x1 = 0; x2 = 0; x3 = 0;
-	
-	p11 = 1000; p12 = 0; p13 = 0;
-	p21 = 0; p22 = 1000; p23 = 0;
-	p31 = 0; p32 = 0; p33 = 1000;
-	
-	Q1 = q1; Q2 = q2; Q3 = q3;
-	R1 = r1; R2 = r2;
+    angle = 0.0f; // Reset the angle
+    bias = 0.0f; // Reset bias
 
-}
-void KalmanData::innovateKalman(float z1,float z2,float dt)
-{
-	float y1, y2;
-	float a, b, c;
-	float sDet;
-	float s11, s12, s21, s22;
-	float k11, k12, k21, k22, k31, k32;
-	float tp11, tp12, tp13, tp21, tp22, tp23, tp31, tp32, tp33;
-	
-	
-	
-	//Step 1
-	// x(k) = Fx(k-1) + Bu + w:
-	x1 = x1 + dt * (x2 - x3);
-	//x2 = x2;
-	//x3 = x3;
+    P[0][0] = 0.0f; // Since we assume that the bias is 0 and we know the starting angle (use setAngle), the error covariance matrix is set like so - see: http://en.wikipedia.org/wiki/Kalman_filter#Example_application.2C_technical
+    P[0][1] = 0.0f;
+    P[1][0] = 0.0f;
+    P[1][1] = 0.0f;
+};
 
-	//Step 2
-	// P = FPF'+Q
-	a = p11 + dt * ( p21 - p31);
-	b = p12 + dt * (p22 - p32);
-	c = p13 + dt * (p23 - p33);
-	p11 = a + dt * (b - c) + Q1;
-	p12 = b;
-	p13 = c;
-	p21 = p21 + dt * (p22 - p23);
-	p22 = p22 + Q2;
-	//p23 = p23;
-	p31 = p31 + dt * (p32 - p33);
-	//p32 = p32;
-	p33 = p33 + Q3;
-	
-	//Step 3
-	// y = z(k) - Hx(k)
-	y1 = z1 - x1;
-	y2 = z2 - x2;
-	
-	//Step 4
-	// S = HPT' + R
-	s11 = p11 + R1;
-	s12 = p12;
-	s21 = p21;
-	s22 = p22 + R2;
-	
-	//Step 5
-	// K = PH*inv(S)
-	sDet = 1/(s11*s22 - s12*s21);
-	k11 = (p11*s22 - p12*s21)*sDet;
-	k12 = (p12*s11 - p11*s12)*sDet;
-	k21 = (p21*s22 - p22*s21)*sDet;
-	k22 = (p22*s11 - p21*s12)*sDet;
-	k31 = (p31*s22 - p32*s21)*sDet;
-	k32 = (p32*s11 - p31*s12)*sDet;
-	
-	// Step 6
-	// x = x + Ky
-	
-	x1 = x1 + k11*y1 + k12*y2;
-	x2 = x2 + k21*y1 + k22*y2;
-	x3 = x3 + k31*y1 + k32*y2;
-	
-	// Step 7
-	// P = (I-KH)P
-	tp11 = p11*(1.0f - k11) - p21*k12;
-	tp12 = p12*(1.0f - k11) - p22*k12;
-	tp13 = p13*(1.0f - k11) - p23*k12;
-	tp21 = p21*(1.0f - k22) - p11*k21;
-	tp22 = p22*(1.0f - k22) - p12*k21;
-	tp23 = p23*(1.0f - k22) - p13*k21;
-	tp31 = p31 - p21*k32 - p11*k31;
-	tp32 = p32 - p22*k32 - p12*k31;
-	tp33 = p33 - p22*k32 - p13*k31;
-	p11 = tp11; p12 = tp12; p13 = tp13;
-	p21 = tp21; p22 = tp22; p23 = tp23;
-	p31 = tp31; p32 = tp32; p33 = tp33;
-}
+// The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
+float Kalman::getAngle(float newAngle, float newRate, float dt) {
+    // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
+    // Modified by Kristian Lauszus
+    // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
+
+    // Discrete Kalman filter time update equations - Time Update ("Predict")
+    // Update xhat - Project the state ahead
+    /* Step 1 */
+    rate = newRate - bias;
+    angle += dt * rate;
+
+    // Update estimation error covariance - Project the error covariance ahead
+    /* Step 2 */
+    P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
+    P[0][1] -= dt * P[1][1];
+    P[1][0] -= dt * P[1][1];
+    P[1][1] += Q_bias * dt;
+
+    // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
+    // Calculate Kalman gain - Compute the Kalman gain
+    /* Step 4 */
+    float S = P[0][0] + R_measure; // Estimate error
+    /* Step 5 */
+    float K[2]; // Kalman gain - This is a 2x1 vector
+    K[0] = P[0][0] / S;
+    K[1] = P[1][0] / S;
+
+    // Calculate angle and bias - Update estimate with measurement zk (newAngle)
+    /* Step 3 */
+    float y = newAngle - angle; // Angle difference
+    /* Step 6 */
+    angle += K[0] * y;
+    bias += K[1] * y;
+
+    // Calculate estimation error covariance - Update the error covariance
+    /* Step 7 */
+    float P00_temp = P[0][0];
+    float P01_temp = P[0][1];
+
+    P[0][0] -= K[0] * P00_temp;
+    P[0][1] -= K[0] * P01_temp;
+    P[1][0] -= K[1] * P00_temp;
+    P[1][1] -= K[1] * P01_temp;
+
+    return angle;
+};
+
+void Kalman::setAngle(float angle) { this->angle = angle; }; // Used to set angle, this should be set as the starting angle
+float Kalman::getRate() { return this->rate; }; // Return the unbiased rate
+
+/* These are used to tune the Kalman filter */
+void Kalman::setQangle(float Q_angle) { this->Q_angle = Q_angle; };
+void Kalman::setQbias(float Q_bias) { this->Q_bias = Q_bias; };
+void Kalman::setRmeasure(float R_measure) { this->R_measure = R_measure; };
+
+float Kalman::getQangle() { return this->Q_angle; };
+float Kalman::getQbias() { return this->Q_bias; };
+float Kalman::getRmeasure() { return this->R_measure; };

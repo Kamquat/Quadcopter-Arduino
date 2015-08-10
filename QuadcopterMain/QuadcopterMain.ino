@@ -32,7 +32,7 @@ int HzMicros = 0;
 void setup()
 {
   #if DEBUG || DEBUG_TIMING
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Begin Setup");
   #endif
   
@@ -84,7 +84,33 @@ void setup()
     #endif
   
   
+  
+  //NOTE: Small code tidbit to determine offset of accelerometer
+  /*
+  Serial.println("Begin AccelAveraging");
+  long double pitchSum = 0;
+  long double rollSum = 0;
+  for(int i = 0; i <= 5000;i++)
+  {
+    IMUAccess.updateIMUValues();
+    Orientation.updateOrientation(10000);
+    pitchSum+= Orientation.tPitch;
+    rollSum += Orientation.tRoll;
+    delay(10);
+    Serial.print(i); Serial.print("Pitch: "); Serial.print(Orientation.tPitch);
+    Serial.print("Roll: "); Serial.println(Orientation.tRoll);
+  }
+  double pitchAverage = pitchSum / 5000.;
+  double rollAverage = rollSum / 5000.;
+  
+  Serial.print("Accel pitch offset: ");
+  Serial.println(pitchAverage);
+  Serial.print("Accel roll offset: ");
+  Serial.println(rollAverage);
   //this is an arming sequence to ensure quad waits before starting motors
+  while(true);*/
+  
+  
   
   #if ARMED
     #if DEBUG
@@ -106,6 +132,8 @@ void setup()
     Serial.println("End Setup");
     HzMicros = micros();
   #endif
+  
+  
 }
 void loop()
 {
@@ -128,7 +156,7 @@ void loop()
 #if DEBUG
 void debugSerial()
 {
-      int debugPeriod = 2000000;
+      int debugPeriod = 200000;
       if(micros()-debugPrevTime > debugPeriod)
       {
         Serial.println("\n\n");
@@ -163,6 +191,9 @@ void debugSerial()
         }
         Serial.println("\n");
         Serial.println("Motor Powers-------------------");
+        #if !ARMED
+          Serial.println("No signal given to motors");
+        #endif
         Serial.print("Receiver last updated: "); Serial.println(micros()-Receiver.lastUpdated);
         Serial.print("Flight Mode          : "); Serial.println(FlightController.flightMode);
         Serial.print("Front Left Motor     : ");Serial.println(FlightController.motorPower[0]);
@@ -177,9 +208,8 @@ void debugSerial()
        
         Serial.println("\n");
         Serial.println("Orientation Values:----------------------");
-	Serial.print("\tRoll: "); Serial.println(Orientation.currentOrientation[0]);
-	Serial.print("\tPitch: "); Serial.println(Orientation.currentOrientation[1]);
-	Serial.print("\tThrust: "); Serial.println(Orientation.currentOrientation[2]);
+	Serial.print("\tRoll: "); Serial.println(Orientation.currentRoll);
+	Serial.print("\tPitch: "); Serial.println(Orientation.currentPitch);
 	Serial.println("");
 
 
@@ -189,11 +219,15 @@ void debugSerial()
 	Serial.print("\tYaw: "); Serial.println(Orientation.currentGyroRates[2]);
         Serial.println("");
         
+        Serial.println("Kalman Values:-----------------");
+        Serial.print("\tRoll: "); Serial.println(Orientation.currentKalmanRoll);
+	Serial.print("\tPitch: "); Serial.println(Orientation.currentKalmanPitch);
+        Serial.println("");
+        
         Serial.println("Angle from Gyro:---------------------");
 	Serial.print("\tX_Angle: "); Serial.println(Orientation.X_angle);
 	Serial.print("\ty_Angle: "); Serial.println(Orientation.Y_angle);
 	Serial.print("\tZ_Angle: "); Serial.println(Orientation.Z_angle);
-        //delay(2000);
         debugPrevTime = micros();
       }
       

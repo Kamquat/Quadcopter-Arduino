@@ -180,7 +180,7 @@ void FlightControllerTwo::calculateMotorPower()
 	//flat mode, listens to throttle, but maintains a vertical orientation
 	
 		
-		PID.updateFlatPID(Orientation.currentOrientation, Orientation.currentGyroRates);
+		PID.updateFlatPID(Orientation.currentPitch,Orientation.currentRoll, Orientation.currentGyroRates);
 		
 		
 		//Following segment calculates desired motor changes 

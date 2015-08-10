@@ -11,18 +11,22 @@ class OrientationTwo
 		void updateOrientation(int);
 		void setupOrientation();
 		
-		double currentOrientation[3];
+		double currentPitch;
+		double currentRoll;
 		double desiredOrientation[3];
 		
 		double currentGyroRates[3];
 		
-		void updateKalman();
+		void updateKalman(int, double, double, double, double);
 		void initializeKalman();
 		
-		KalmanData pitchKalman;
-		KalmanData rollKalman;
+		Kalman pitchKalman;
+		Kalman rollKalman;
 		
+		float currentKalmanPitch;
+		float currentKalmanRoll;
 		
+		void calculatePitchRoll(void);
 		
 		//begin Minh's segment
 		
@@ -35,7 +39,8 @@ class OrientationTwo
 
 		double axisChange[3];
 		
-		
+		double tPitch;
+		double tRoll;
 		
 		
 		private:

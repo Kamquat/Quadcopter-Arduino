@@ -33,7 +33,7 @@ void PIDTwo::setupPID()
 	rollRateCumError = 0;
 	yawRateCumError = 0;
 }
-void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRates[])
+void PIDTwo::updateFlatPID(double currentPitch, double currentRoll, double currentRotationRates[])
 {//this PID loop holds quadcopter in normal Orientation
 
 	//currentOrientation 0 = roll, 1 = pitch, 2 = thrust
@@ -42,8 +42,8 @@ void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRa
 	//I am uncertain if  this is already the correct implementation
 	
 	
-	double pitchAngleError = -currentOrientation[1];
-	double rollAngleError = -currentOrientation[0];
+	double pitchAngleError = -currentPitch;
+	double rollAngleError = -currentRoll;
 	
 	
 	//I do not yet know how to calculate this, but it will be done using
@@ -73,14 +73,14 @@ void PIDTwo::updateFlatPID(double currentOrientation[], double currentRotationRa
 	
 	
 	
-	
+	/*
 	pitchAdjustment *= 	RATE_TO_POWER;
 	rollAdjustment *=  	RATE_TO_POWER;
-	yawAdjustment *=   	RATE_TO_POWER;
+	yawAdjustment *=   	RATE_TO_POWER;*/
 	
-	PIDLimits();
+	CheckPIDLimits();
 }
-void PIDTwo::PIDLimits()
+void PIDTwo::CheckPIDLimits()
 {
 	if     (pitchAdjustment > MAX_ADJUSTMENT) pitchAdjustment = MAX_ADJUSTMENT;
 	else if(pitchAdjustment < MIN_ADJUSTMENT) pitchAdjustment = MIN_ADJUSTMENT;

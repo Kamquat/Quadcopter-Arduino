@@ -2,7 +2,7 @@
 #define Config_h
 
 
-#define ARMED true
+#define ARMED false
 #define DEBUG true         //If set to true, will do debug work like Serial.print
 #define DEBUG_TIMING false  //If set to true, include timing code
 
@@ -50,6 +50,10 @@ Recall motors should be on these pins due to differences in analogWrite frequenc
 #define RECEIVER_BUTTON2	6
 #define RECEIVER_KNOB1		7
 
+
+//Other init. values
+#define GYRO_INIT_SAMPLES 2000.
+#define ACCEL_INIT_SAMPLES 2000.
 
 
 
@@ -99,17 +103,13 @@ Recall motors should be on these pins due to differences in analogWrite frequenc
 
 
 //---KALMAN FILTER VALUES
-#define PITCH_q1 			1
-#define PITCH_q2 			1
-#define PITCH_q3 			.2
-#define PITCH_r1 			2
-#define PITCH_r2			1
+#define PITCH_Q_ANGLE 		.001
+#define PITCH_Q_BIAS 		.003
+#define PITCH_R_MEASURE		.003
 
-#define ROLL_q1 			1
-#define ROLL_q2 			1
-#define ROLL_q3 			.2
-#define ROLL_r1 			2
-#define ROLL_r2				2
+#define ROLL_Q_ANGLE 		.001
+#define ROLL_Q_BIAS 		.003
+#define ROLL_R_MEASURE		.003
 
 
 #endif
