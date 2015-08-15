@@ -119,10 +119,12 @@ void FlightControllerTwo::calculateMotorPower()
 	}
 	if(flightMode == 0) //This is for when receiver is not detected
 	{
-		motorPower[0] = MIN_POWER-50;
-		motorPower[1] = MIN_POWER-50;
-		motorPower[2] = MIN_POWER-50;
-		motorPower[3] = MIN_POWER-50;
+		motorPower[0] = MIN_SAFE_POWER-50;
+		motorPower[1] = MIN_SAFE_POWER-50;
+		motorPower[2] = MIN_SAFE_POWER-50;
+		motorPower[3] = MIN_SAFE_POWER-50;
+		
+		//May want to consider adding ARMING SEQUENCE here
 	}
 	else if(flightMode == 1)  //This is flight mode 1, should remain engine cutoff
 	{
@@ -144,10 +146,10 @@ void FlightControllerTwo::calculateMotorPower()
 			motorPower[3] = MIN_POWER;
 		}*/
 		
-		motorPower[0] = MIN_POWER-50;
-		motorPower[1] = MIN_POWER-50;
-		motorPower[2] = MIN_POWER-50;
-		motorPower[3] = MIN_POWER-50;
+		motorPower[0] = MIN_SAFE_POWER-50;
+		motorPower[1] = MIN_SAFE_POWER-50;
+		motorPower[2] = MIN_SAFE_POWER-50;
+		motorPower[3] = MIN_SAFE_POWER-50;
 	}
 		
 		/*
@@ -181,10 +183,36 @@ void FlightControllerTwo::calculateMotorPower()
 	
 		
 		PID.updateFlatPID(Orientation.currentPitch,Orientation.currentRoll, Orientation.currentGyroRates);
+		motorPower[0] = 1100;
+		motorPower[1] = 1100;
+		motorPower[2] = 1100;
+		motorPower[3] = 1100;
+		
+		if(Receiver.channelWidth[RECEIVER_THROTTLE] > 1800)
+		{
+			motorPower[0] = 1300;
+		}
+		else if(Receiver.channelWidth[RECEIVER_THROTTLE] < 1100)
+		{
+			motorPower[1] = 1300;
+		}
+		else if(Receiver.channelWidth[RECEIVER_YAW] < 1100)
+		{
+			motorPower[2] = 1300;
+		}
+		else if(Receiver.channelWidth[RECEIVER_YAW] > 1800)
+		{
+			motorPower[3] = 1300;
+		}
+		
+		
 		
 		
 		//Following segment calculates desired motor changes 
 		//X configuration
+		
+		
+		/*
 		motorPower[0] = throttle;
 		motorPower[1] = throttle;
 		motorPower[2] = throttle;
@@ -199,6 +227,7 @@ void FlightControllerTwo::calculateMotorPower()
 		motorPower[1] += -PID.rollAdjustment;
 		motorPower[2] += PID.rollAdjustment;
 		motorPower[3] += -PID.rollAdjustment;
+		*/
 		/*
 		motorPower[0] += throttle + PID.pitchAdjustment + PID.yawAdjustment;
 		motorPower[1] += throttle + PID.pitchAdjustment + PID.yawAdjustment;
@@ -210,8 +239,62 @@ void FlightControllerTwo::calculateMotorPower()
 		
 		//Following ensures value is within given parameters, attempts to equally level
 		//all inputs if a value is out of range
-		checkMotorInputs();
+		
+		
+		//CURRENTLY DOES NOT WORK, WAS PUTTING MOTORS AT MAX THRUST
+		//checkMotorInputs();
 	}
+}
+void FlightControllerTwo::calibrateESC()
+{
+	#if DEBUG
+		Serial.println("MOTOR VALUES = 0");
+	#endif
+	#if ARMED
+		#if DEBUG
+		Serial.println("Motor Signals not sent");
+		#endif
+		
+		analogWrite(FRONT_LEFT_MOTOR_PIN,0*CHANGE_CONSTANT);
+		analogWrite(FRONT_RIGHT_MOTOR_PIN ,0*CHANGE_CONSTANT);
+		analogWrite(BACK_LEFT_MOTOR_PIN ,0*CHANGE_CONSTANT);
+		analogWrite(BACK_RIGHT_MOTOR_PIN,0*CHANGE_CONSTANT);
+	#endif
+	
+	while(Receiver.channelWidth[RECEIVER_THROTTLE] < 1800);
+	#if DEBUG
+		Serial.print("MOTOR VALUES = "); Serial.println(MAX_SAFE_POWER);
+	#endif
+	#if ARMED
+		#if DEBUG
+		Serial.println("Motor Signals not sent");
+		#endif
+		
+		analogWrite(FRONT_LEFT_MOTOR_PIN,MAX_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(FRONT_RIGHT_MOTOR_PIN ,MAX_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(BACK_LEFT_MOTOR_PIN ,MAX_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(BACK_RIGHT_MOTOR_PIN,MAX_SAFE_POWER*CHANGE_CONSTANT);
+	#endif
+	
+	while(Receiver.channelWidth[RECEIVER_THROTTLE] > 1100);
+	#if DEBUG
+		Serial.print("MOTOR VALUES = "); Serial.println(MIN_SAFE_POWER);
+	#endif
+	
+	#if ARMED
+		#if DEBUG
+		Serial.println("Motor Signals not sent");
+		#endif
+		
+		analogWrite(FRONT_LEFT_MOTOR_PIN,MIN_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(FRONT_RIGHT_MOTOR_PIN ,MIN_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(BACK_LEFT_MOTOR_PIN ,MIN_SAFE_POWER*CHANGE_CONSTANT);
+		analogWrite(BACK_RIGHT_MOTOR_PIN,MIN_SAFE_POWER*CHANGE_CONSTANT);
+	#endif
+	
+	delay(2000);
+
+
 }
 void FlightControllerTwo::checkMotorInputs()
 {

@@ -52,28 +52,29 @@ void PIDTwo::updateFlatPID(double currentPitch, double currentRoll, double curre
 	
 	
 	
-	double desiredPitchRate = calculatePID(pitchAngleError,pitchAngleCumError, P_PITCH_ANGLE,I_PITCH_ANGLE,D_PITCH_ANGLE);
-	double desiredRollRate = calculatePID(rollAngleError,rollAngleCumError, P_ROLL_ANGLE,I_ROLL_ANGLE,D_ROLL_ANGLE);
+	double desiredPitchRate = calculatePID(pitchAngleError,pitchAngleCumError,PITCH_ANGLE_MAX_CUM, P_PITCH_ANGLE,I_PITCH_ANGLE,D_PITCH_ANGLE);
+	double desiredRollRate = calculatePID(rollAngleError,rollAngleCumError, ROLL_ANGLE_MAX_CUM,P_ROLL_ANGLE,I_ROLL_ANGLE,D_ROLL_ANGLE);
 	
 	
 	//desired - current
 	
 	//currentRotationRates are coded in, but still isn't coded
-	double pitchRateError = pitchAngleError - currentRotationRates[1];
-	double rollRateError = rollAngleError - currentRotationRates[0];
+	double pitchRateError = desiredPitchRate - currentRotationRates[1];
+	double rollRateError = desiredRollRate - currentRotationRates[0];
 	double yawRateError = -currentRotationRates[3];
 	
 	
 	
 	
 	
-	pitchAdjustment = calculatePID(pitchRateError,pitchRateCumError,P_PITCH_RATE,I_PITCH_RATE,D_PITCH_RATE);
-	rollAdjustment = calculatePID(rollRateError,rollRateCumError,P_ROLL_RATE,I_ROLL_RATE,D_ROLL_RATE);
-	yawAdjustment = calculatePID(yawRateError,yawRateCumError,P_YAW_RATE,I_YAW_RATE,D_YAW_RATE);
+	pitchAdjustment = calculatePID(pitchRateError,pitchRateCumError,PITCH_RATE_MAX_CUM,P_PITCH_RATE,I_PITCH_RATE,D_PITCH_RATE);
+	rollAdjustment = calculatePID(rollRateError,rollRateCumError,ROLL_RATE_MAX_CUM,P_ROLL_RATE,I_ROLL_RATE,D_ROLL_RATE);
+	yawAdjustment = calculatePID(yawRateError,yawRateCumError,YAW_RATE_MAX_CUM,P_YAW_RATE,I_YAW_RATE,D_YAW_RATE);
 	
 	
 	
 	/*
+	Pretty sure this should just be handled by PID vals
 	pitchAdjustment *= 	RATE_TO_POWER;
 	rollAdjustment *=  	RATE_TO_POWER;
 	yawAdjustment *=   	RATE_TO_POWER;*/
@@ -95,7 +96,7 @@ void PIDTwo::updateStablePID(double currentOrientation[], double desiredOrientat
 {
 	
 }
-double PIDTwo::calculatePID(double error, double &cumError, double P, double I, double D)
+double PIDTwo::calculatePID(double error, double cumError, double maxError,  double P, double I, double D)
 {
 	
 	int dt = millis() - prevTime;
@@ -104,8 +105,15 @@ double PIDTwo::calculatePID(double error, double &cumError, double P, double I, 
 	double Pcorrection = P*error;
 	
 	double integral = I * error * dt /1000.0;
-	double Icorrection = integral + cumError;
 	cumError += integral;
+	if(cumError >= maxError)
+	{
+		cumError = maxError / 2;
+	}
+	
+	
+	double Icorrection = cumError;
+	
 	
 	
 	//D value may be considered later
