@@ -2,10 +2,9 @@
 #define Config_h
 
 
-#define ARMED 			false
-#define DEBUG 			true         //If set to true, will do debug work like Serial.print
-#define CALIBRATE_ESC 	false
-#define DEBUG_TIMING 	false  //If set to true, include timing code
+#define ARMED false
+#define DEBUG true         //If set to true, will do debug work like Serial.print
+#define DEBUG_TIMING false  //If set to true, include timing code
 
 //PIN VALUES===========================================================
 #define RECEIVER_PIN_1 	31
@@ -79,7 +78,7 @@ Recall motors should be on these pins due to differences in analogWrite frequenc
 #define COMPASS_GAIN       			0      //see HMC datasheet page 13 0 = .73mG/LSb
 #define COMPASS_SAMPLES_AVERAGED	3      //I Think this helps average the output values
 
-#define RECALCULATE_MOTOR_PERIOD 1000000./400 //10,00 microseconds 400Hz
+#define RECALCULATE_MOTOR_PERIOD 1000000./1000 //10,00 microseconds 1000Hz
 
 //PID VALUES=======================================================================
 #define P_PITCH_ANGLE		1
@@ -101,12 +100,6 @@ Recall motors should be on these pins due to differences in analogWrite frequenc
 #define P_YAW_RATE			1
 #define I_YAW_RATE			0
 #define D_YAW_RATE			0
-
-#define PITCH_ANGLE_MAX_CUM	100
-#define ROLL_ANGLE_MAX_CUM	100
-#define PITCH_RATE_MAX_CUM	100
-#define ROLL_RATE_MAX_CUM	100
-#define YAW_RATE_MAX_CUM	100
 
 
 //---KALMAN FILTER VALUES

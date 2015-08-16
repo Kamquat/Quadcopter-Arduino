@@ -45,11 +45,9 @@
 	}
 	void ReceiverTwo::checkInputs()
 	{
-	//TODO: Move this function into Flightcontroller
-	int MAX_POWER = 1950;
 		for(int i =0; i < 8; i++)
 		{
-			if(channelWidth[i] > MAX_POWER) channelWidth[i] = MAX_POWER;
+			if(channelWidth[i] > 2000) channelWidth[i] = 2000;
 		}
 	}
 	void receiverChange1()
