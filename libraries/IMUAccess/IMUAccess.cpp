@@ -7,50 +7,6 @@ Compass and Barometer not yet ready
 #include "Config.h"
 bool IMUAccessTwo::setupDevices(void)
 {
-	accelMicros = 0, gyroMicros = 0, compassMicros = 0;
-	accelInterval = 0, gyroInterval = 0, compassInterval = 0;
-	gyroOffsets[3] = {0};
-	gyroAverageCounter = 0;
-	//currentAccelValues[3] = {0};
-	//currentCompassValues[3] = {0};
-	//currentGyroValues[3] = {0};
-	//Sets
-	#if DEBUG
-		Serial.println("Entering switch statements");
-	#endif
-	switch(ACCEL_FREQUENCY)
-	{
-		case 13: 	accelInterval = 1000000/800;
-					break;
-		case 12:	accelInterval = 1000000/400;
-					break;
-		case 11:	accelInterval = 1000000/200;
-					break;
-		case 10:	accelInterval = 1000000/100;
-					break;
-		case 9:		accelInterval = 1000000/50;
-					break;
-	}
-	switch(GYRO_FREQUENCY)
-	{
-		case 0: 	gyroInterval = 1000000/100;
-					break;
-		case 1:		gyroInterval = 1000000/200;
-					break;
-		case 2:		gyroInterval = 1000000/400;
-					break;
-		case 3:		gyroInterval = 1000000/800;
-	}
-	switch(COMPASS_FREQUENCY)
-	{
-		case 3: 	compassInterval = 1000000/7.5;
-					break;
-		case 4:		compassInterval = 1000000/15;
-					break;
-		case 5:		compassInterval = 1000000/30;
-					break;
-		case 6:		compassInterval = 1000000/75;
-	}
 	#if DEBUG
 		Serial.println("\t\tEntering setupADXL345");
 	#endif
@@ -81,52 +37,6 @@ bool IMUAccessTwo::setupDevices(void)
 	#endif
 
 
-}
-void IMUAccessTwo::updateIMUValues(void)
-{
-	//currently the new values not being passed up to this level
-	if(micros()-accelMicros > accelInterval)  //Accesses Accelerometer at frequency from Config
-	{
-		bool goodAccelRead = getAccelData();
-		if(goodAccelRead ==true) 
-		{
-			accelMicros = micros();
-			for(int i = 0; i<3; i++)
-			{
-				//this is a high pass filter
-				currentAccelValues[i] = currentAccelValues[i] * ACCEL_HPF_VALUE + (1.-ACCEL_HPF_VALUE)*incomingAccelValues[i];
-			}
-			
-		
-		
-		}
-	}
-	if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
-	{
-		bool goodGyroRead = getGyroData();
-		if(goodGyroRead == true) {gyroMicros = micros();}
-		
-
-		double average = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			previousGyroValues[i][gyroAverageCounter] = incomingGyroValues[i];
-			for(int j = 0; j < NUMBER_PREV_VALUES; j++)
-			{
-				average += previousGyroValues[i][gyroAverageCounter];
-			}
-			average /= NUMBER_PREV_VALUES;
-			currentGyroValues[i] = average;
-		}
-		gyroAverageCounter++;
-		if(gyroAverageCounter >= NUMBER_PREV_VALUES) {gyroAverageCounter = 0;}
-			
-	}
-	if(micros()-compassMicros > compassInterval)  //Accesses Compass at frequency from Config
-	{	
-		bool goodCompassRead = getCompassData();
-		if(goodCompassRead == true) {compassMicros = micros();}
-	}
 }
 bool IMUAccessTwo::setupADXL345(void)
 {
@@ -206,24 +116,6 @@ bool IMUAccessTwo::setupL3G4200D(void)
 	*/
 	
 	//prepares offset values, will hopefully make gyro more reliable
-	int xSum = 0, ySum = 0, zSum = 0;
-	gyroMicros = micros();
-	for(int i = 0; i < GYRO_INIT_SAMPLES;)
-	{
-		if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
-		{
-			if(getGyroData()==true)
-			{
-				xSum += currentGyroValues[0];
-				ySum += currentGyroValues[1];
-				zSum += currentGyroValues[2];
-				i++;
-			}
-		}
-	}
-	gyroOffsets[0] = xSum / GYRO_INIT_SAMPLES;
-	gyroOffsets[1] = ySum / GYRO_INIT_SAMPLES;
-	gyroOffsets[2] = zSum / GYRO_INIT_SAMPLES;
 	
 	#if DEBUG
 		Serial.println("Gyro Ready");
@@ -232,6 +124,41 @@ bool IMUAccessTwo::setupL3G4200D(void)
 		Serial.print("Z= "); Serial.println(gyroOffsets[2]);
 	#endif
 	return true;
+}
+void IMUAccessTwo::calculateGyroOffsets(long )
+{
+	double gyroInterval = 0;
+
+	switch(GYRO_FREQUENCY)
+	{
+		case 0: 	gyroInterval = 1000000/100;
+					break;
+		case 1:		gyroInterval = 1000000/200;
+					break;
+		case 2:		gyroInterval = 1000000/400;
+					break;
+		case 3:		gyroInterval = 1000000/800;
+	}
+
+	int xSum = 0, ySum = 0, zSum = 0;
+	long gyroMicros = micros();
+	double tempGyroValues[3] = {0};
+	for(int i = 0; i < NUM_GYRO_OFFSET_SAMPLES;)
+	{
+		if(micros()-gyroMicros > gyroInterval)     //Accesses Gyros at frequency from Config
+		{
+			if(getGyroData(tempGyroValues)==true)
+			{
+				xSum += tempGyroValues[0];
+				ySum += tempGyroValues[1];
+				zSum += tempGyroValues[2];
+				i++;
+			}
+		}
+	}
+	gyroOffsets[0] = xSum / NUM_GYRO_OFFSET_SAMPLES;
+	gyroOffsets[1] = ySum / NUM_GYRO_OFFSET_SAMPLES;
+	gyroOffsets[2] = zSum / NUM_GYRO_OFFSET_SAMPLES;
 }
 bool IMUAccessTwo::setupHMC5883L(void)
 {
@@ -263,9 +190,10 @@ bool IMUAccessTwo::setupHMC5883L(void)
 bool IMUAccessTwo::setupBMP085(void)
 {
 }
-bool IMUAccessTwo::getAccelData()
+bool IMUAccessTwo::getAccelData(double outgoingForces[3])
 {
 	byte incomingValues[6] = {0};
+	double incomingAccelValues[3] = {0};
 	bool goodRead = readIMU(ADXL345_ADDRESS,ADXL345_DATA,6, incomingValues);
 	
 	if(goodRead == true)
@@ -306,7 +234,6 @@ bool IMUAccessTwo::getAccelData()
 				incomingAccelValues[i] = -temp;		
 			}
 		}
-		
 		//flips X-Y axis *-1 to Z axis
 		/*
 		temp = -incomingAccelValues[0];
@@ -314,12 +241,55 @@ bool IMUAccessTwo::getAccelData()
 		incomingAccelValues[1] = temp;
 		incomingAccelValues[2] = -incomingAccelValues[2];
 		*/
+		accelToEuler(incomingAccelValues);
+		for(int i = 0; i < 3; i++)
+		{
+			outgoingForces[i] = incomingAccelValues[i];
+		}
 	}
 	return goodRead;
 }
-bool IMUAccessTwo::getGyroData()
+void IMUAccessTwo::accelToEuler(double outgoingForces[3])
+{
+	accelToGForce(outgoingForces[0],ACCELX_MIN_FACTOR,ACCELX_MAX_FACTOR);
+	accelToGForce(outgoingForces[1],ACCELY_MIN_FACTOR,ACCELY_MAX_FACTOR);
+	accelToGForce(outgoingForces[2],ACCELZ_MIN_FACTOR,ACCELZ_MAX_FACTOR);
+}
+void IMUAccessTwo::gyroToDegree(double outgoingDegrees[3])
+{
+	double degree = 0;
+	for(int i = 0; i < 3; i++)
+	{
+		outgoingDegrees[i] = outgoingDegrees[i] *gyroSensitivity;
+	}
+}
+void IMUAccessTwo::calculateGyroSensitivity()
+{
+	//This will eventually calculate it based on config value
+	gyroSensitivity = 0.00875;
+}
+double IMUAccessTwo::accelToGForce(int inValue, double minValue, double maxValue)
+{
+	//NOTE: The Min/Max values are the accelerometer values
+	//when the accelerometer was placed in particular orientations
+	//Ex: When X=Z=0 and Y = min / max rotation
+	//This means it already accounts for gravity conversion
+	double G = 0;
+	if (inValue <= 0)					//if int value < 0 use minimum scale factor (g/LSB)
+	{
+		G = (double)inValue / minValue;
+	}
+	
+	else									//if positive use maximum scale factor (g/LSB)
+	{
+		G = (double)inValue / maxValue;
+	}
+	return G;									//returns value in gravitational force	
+}
+bool IMUAccessTwo::getGyroData(double outgoingDegrees[3])
 {
 	byte incomingValues[6] = {0};
+	double incomingGyroValues[3] = {0};
 	bool goodRead = readIMU(L3G4200D_ADDRESS,L3G4200D_DATA,6, incomingValues);
 	
 	
@@ -367,34 +337,44 @@ bool IMUAccessTwo::getGyroData()
 		incomingGyroValues[2] = -incomingGyroValues[2];
 		*/
 		
+		
+		//offsets Gyros
 		for(int i = 0; i < 3; i++)
 		{
 			incomingGyroValues[i] = incomingGyroValues[i] - gyroOffsets[i];
 		}
+		
+		gyroToDegree(incomingGyroValues);
+		
+		for(int i = 0; i < 3; i++)
+		{
+			outgoingDegrees[i] = incomingGyroValues[i];
+		}
 	}
 	return goodRead;
 }
-bool IMUAccessTwo::getCompassData()
+bool IMUAccessTwo::getCompassData(double outgoingHeading)
 {
 	//This section is just some basic code, nothing is being done with it
 	//will probably require tweaking to work
 	byte incomingValues[6] = {0};
+	double incomingCompassValues[3] = {0};
 	
 	
 	bool goodRead = readIMU(HMC5883L_ADDRESS,HMC5883L_DATA,6, incomingValues);
 	if(goodRead == true)
 	{
 		//Not sure this block is appropriate for the compass
-		currentCompassValues[0] = incomingValues[0]<<8 | incomingValues[1];
-		currentCompassValues[1] = incomingValues[2]<<8 | incomingValues[3];
-		currentCompassValues[2] = incomingValues[4]<<8 | incomingValues[5];
+		incomingCompassValues[0] = (double)(incomingValues[0]<<8 | incomingValues[1]);
+		incomingCompassValues[1] = incomingValues[2]<<8 | incomingValues[3];
+		incomingCompassValues[2] = incomingValues[4]<<8 | incomingValues[5];
 	
 	
 		//Converts the 2's complement number into a negative number as needed
 		int temp;
 		for(int i = 0; i < 3; i++)
 		{
-			temp = currentCompassValues[i];
+			temp = incomingCompassValues[i];
 			if(temp > 32767)   //this means the value is negative, must fix
 			{
 				int j = 31;
@@ -415,10 +395,16 @@ bool IMUAccessTwo::getCompassData()
 					}
 				}
 				temp += 1;
-				currentCompassValues[i] = -temp;		
+				incomingCompassValues[i] = -temp;		
 			}
 		}
 		
+		
+		//will still need to convert this to heading
+		for(int i = 0; i < 3; i++)
+		{
+			currentCompassValues[i] = incomingCompassValues[i];
+		}
 		//Flips X-Y axis, flips +-Z measurements
 		/*
 		temp = currentCompassValues[1];
@@ -472,21 +458,6 @@ bool IMUAccessTwo::writeIMU(int deviceAddress, int dataAddress,int value)
 	Wire.write(dataAddress);
 	Wire.write(value);
 	return (Wire.endTransmission(true));
-}
-void IMUAccessTwo::averageGyroValues()
-{
-	double average = 0;
-	for(int i = 0; i < 3; i++)
-	{
-		previousGyroValues[i][gyroAverageCounter] = incomingGyroValues[i];
-			
-		for(int j = 0; j < NUMBER_PREV_VALUES; j++)
-		{
-			average += previousGyroValues[i][gyroAverageCounter];
-		}
-		average /= NUMBER_PREV_VALUES;
-		currentGyroValues[i] = average;
-	}
 }
 bool IMUAccessTwo::clearI2CBus()
 {

@@ -8,6 +8,19 @@
 #define IMUAccess_h
 #include "Arduino.h"
 
+//
+#define NUM_GYRO_OFFSET_SAMPLES	2000	//used in offset calculation
+
+
+//ACCELEROMETER CALIBRATIONS
+#define ACCELX_MIN_FACTOR		-128	
+#define ACCELX_MAX_FACTOR		130
+#define ACCELY_MIN_FACTOR		-126
+#define ACCELY_MAX_FACTOR		133
+#define ACCELZ_MIN_FACTOR		115 //may need to flip
+#define ACCELZ_MAX_FACTOR		-135
+
+
 
 //define Accelerometer addresses
 
@@ -45,19 +58,12 @@
 
 
 
-#define ACCEL_LPF_VALUE			.95
-#define ACCEL_HPF_VALUE			.9
-
-#define NUMBER_PREV_VALUES		4
-
-
 //bool public setupHMC5883L();
 
 class IMUAccessTwo
 {
 	public:
 		bool setupDevices();
-		void updateIMUValues();
 		int currentAccelValues[3];
 		int accelAverageArray[][3];
 		int gyroAverageArray[];
@@ -67,27 +73,27 @@ class IMUAccessTwo
 		void testStuff();
 		bool clearI2CBus(void);
 		void averageGyroValues(void);
+		bool getAccelData(double[3]);
+		bool getGyroData(double[3]);
+		bool getCompassData(double);
+		void getBarometerData(double);
+		void calculateGyroOffsets(long);
 	private:
 		bool setupADXL345();
 		bool setupL3G4200D();
 		bool setupHMC5883L();
 		bool setupBMP085();
-		bool getAccelData();
-		bool getGyroData();
-		bool getCompassData();
-		void getBarometerData();
 		bool readIMU(int,int,int,byte[]);
 		bool writeIMU(int,int, int);
+		void gyroToDegree(double[3]);
+		void accelToEuler(double[3]);
+		double accelToGForce(int,double,double);
 		
-		int incomingAccelValues[3];
-		int incomingGyroValues[3];
+		double gyroSensitivity;
+		void calculateGyroSensitivity();
 		
-		int accelMicros,gyroMicros,compassMicros;
-		int accelInterval, gyroInterval, compassInterval;
+		
 		int gyroOffsets[3];
-		
-		int previousGyroValues[3][NUMBER_PREV_VALUES];
-		int gyroAverageCounter;
 		//int retrieveValue(int address, int registerAddress);
 	
 };

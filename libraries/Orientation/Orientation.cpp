@@ -24,15 +24,13 @@ ACCEL_RESOLUTION == 3 => [.0286 - .0345]
 
 double Accel_to_G(double,int);
 double Gyro_to_degree(double);
-/*
-Sam flipped X-Y axis and +-Z measurements
-int c[3][2] = { {-126,133},		//x min and max calibration measurements
-				{-128,130},		//y
-				{-140,115} };	//z
-				*/
+				
+				/*
+				disabled because these values moved to IMUAccess
 int c[3][2] = { {-128,130},		//x min and max calibration measurements
 				{-126,133},		//y
-				{115,-135} };	//z				
+				{115,-135} };	//z	
+*/				
 				
 void OrientationTwo::setupOrientation()
 {
@@ -41,22 +39,71 @@ void OrientationTwo::setupOrientation()
 	currentPitch = 0;
 	//execute Minh's setup
 	setupAngularPosition();
-
-}
-void OrientationTwo::updateOrientation(int dt)
-{
 	
-
+	
+	accelLastUpdate = 0; gyroLastUpdate = 0; compassLastUpdate = 0;
+	accelInterval = 0, gyroInterval = 0, compassInterval = 0;
+	gyroOffsets[3] = {0};
+	int gyroAverageCounter = 0;
+	previousUpAngPos = micros();
+	
+	
+	//Sets the updateFrequencies
+	#if DEBUG
+		Serial.println("Entering switch statements");
+	#endif
+	switch(ACCEL_FREQUENCY)
+	{
+		case 13: 	accelInterval = 1000000/800;
+					break;
+		case 12:	accelInterval = 1000000/400;
+					break;
+		case 11:	accelInterval = 1000000/200;
+					break;
+		case 10:	accelInterval = 1000000/100;
+					break;
+		case 9:		accelInterval = 1000000/50;
+					break;
+	}
+	switch(GYRO_FREQUENCY)
+	{
+		case 0: 	gyroInterval = 1000000/100;
+					break;
+		case 1:		gyroInterval = 1000000/200;
+					break;
+		case 2:		gyroInterval = 1000000/400;
+					break;
+		case 3:		gyroInterval = 1000000/800;
+	}
+	switch(COMPASS_FREQUENCY)
+	{
+		case 3: 	compassInterval = 1000000/7.5;
+					break;
+		case 4:		compassInterval = 1000000/15;
+					break;
+		case 5:		compassInterval = 1000000/30;
+					break;
+		case 6:		compassInterval = 1000000/75;
+	}
+	
+}
+void OrientationTwo::updateOrientation()
+{
+	long currentTime = micros();
+	updateEulerValues();
+	
 	calculatePitchRoll();
 	
-	updateAngularPosition(dt);
+	if(currentTime - previousUpAngPos > UP_ANG_POS_PERIOD)
+		updateAngularPosition(currentTime - previousUpAngPos);
 	
 	
 	
 	//int DT, double pitch, double gyroX, double roll, double gyroY
 	
 	//Note that on the IMU X-Y are flipped and Z is negated
-	updateKalman(dt,tPitch,currentGyroRates[1],tRoll,currentGyroRates[0]);
+	if(currentTime - previousKalmanCalc > KALMAN_CALC_PERIOD)
+	updateKalman(currentTime - previousKalmanCalc,tPitch,currentGyroRates[1],tRoll,currentGyroRates[0]);
 	
 	
 	
@@ -77,18 +124,62 @@ void OrientationTwo::updateOrientation(int dt)
 	
 	
 }
+void OrientationTwo::updateEulerValues()
+{
+	long currentTime = micros();
+	double tempAccelValues[3] = {0};
+	if(currentTime - accelLastUpdate > accelInterval)
+	{
+		bool goodAccelRead = IMUAccess.getAccelData(tempAccelValues);
+		if(goodAccelRead == true) 
+		{
+			accelLastUpdate = currentTime;
+		}
+	}
+	if(currentTime - gyroLastUpdate > gyroInterval)
+	{
+		double tempGyroValues[3] = {0};
+		bool goodGyroRead = IMUAccess.getAccelData(tempGyroValues);
+		if(goodGyroRead == true)
+		{
+			gyroLastUpdate = currentTime;
+		}
+	}
+	if(currentTime - compassLastUpdate > compassInterval)
+	{
+		double heading = 0;
+		bool goodCompassRead = IMUAccess.getCompassData(heading);
+		if(goodCompassRead == true)
+		{
+			compassLastUpdate = currentTime;
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+}
 void OrientationTwo::calculatePitchRoll()
 {
 	//NOTE: this flips the X-Y axis and negates Z axis
 	//THis is because the IMU is upsidedown and slightly rotated
-		
+
+	/*
+	disabled because IMUAccess now handles gravity conversion
 	double gx = Accel_to_G(IMUAccess.currentAccelValues[1],1);				//computes gravitational force in x directions
 	double gy = Accel_to_G(IMUAccess.currentAccelValues[0],0);				//computes gravitational force in y directions
 	double gz = Accel_to_G(-IMUAccess.currentAccelValues[2],2);		        //gravitational force in z directions. 
+	*/
 	
 	
 	
-	
+	//this flips axis to reorient system
+	double gx = IMUAccess.currentAccelValues[1];
+	double gy = IMUAccess.currentAccelValues[0];
+	double gz = -IMUAccess.currentAccelValues[2];
 	/*
 	previous roll, pitch calculations
 	double roll = atan2(gy,gz);											//converts g-force into radians(roll)
@@ -120,7 +211,7 @@ void OrientationTwo::calculatePitchRoll()
 }
 double Accel_to_G(double Accel_Value,int axis)					
 	{	
-
+		/*
 		double G = 0, min_factor = 0, max_factor = 0;
 		int xmin = c[0][0],xmax = c[0][1],								//sets min and max calibrations to variables for easier use
 			ymin = c[1][0],ymax = c[1][1],
@@ -153,7 +244,7 @@ double Accel_to_G(double Accel_Value,int axis)
 				G = Accel_Value*max_factor;
 			}
 		return G;									//returns value in gravitational force
-		
+		*/
 	}
 void OrientationTwo::setupAngularPosition()
 {
@@ -205,7 +296,7 @@ void OrientationTwo::updateKalman(int DT, double pitch, double pitchGyro, double
 }
 void OrientationTwo::initializeKalman()
 {
-	updateOrientation(1);
+	updateOrientation();
 
 	pitchKalman.setQangle(PITCH_Q_ANGLE);
 	pitchKalman.setQbias(PITCH_Q_BIAS);
