@@ -66,7 +66,7 @@ void FlightControllerTwo::flightControl()
 	{
 		
 		Receiver.checkInputs();
-		Orientation.updateOrientation();
+		Orientation.updateOrientation(dt);
 		calculateMotorPower();
 		previousPulseTime = micros();
 

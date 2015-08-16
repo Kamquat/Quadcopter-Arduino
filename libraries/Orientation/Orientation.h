@@ -3,14 +3,12 @@
 #include "Arduino.h"
 #include "Kalman.h"
 
-#define COMPLEMENT_CONST 	.95
-#define UP_ANG_POS_PERIOD	1000000./800 //800Hz
-#define KALMAN_CALC_PERIOD	1000000./100 //100Hz
+#define COMPLEMENT_CONST .95
 
 class OrientationTwo
 {
 	public:
-		void updateOrientation();
+		void updateOrientation(int);
 		void setupOrientation();
 		
 		double currentPitch;
@@ -48,21 +46,8 @@ class OrientationTwo
 		private:
 		int previousTime;
 		long prevKalmanCalculation;
-		int accelLastUpdate;
-		int gyroLastUpdate;
-		int compassLastUpdate;
-		double accelInterval;
-		double gyroInterval;
-		double compassInterval;
-		double gyroOffsets[3];
-		void updateEulerValues(void);
-		
-		
-		
 		//minh's
 		int prevTime;
-		long previousUpAngPos; //used in angular integral calculation
-		long previousKalmanCalc; //used in calculating Kalman Filter
 	
 };
 extern OrientationTwo Orientation;
